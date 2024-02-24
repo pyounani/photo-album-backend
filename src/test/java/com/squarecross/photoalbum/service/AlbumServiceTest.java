@@ -1,6 +1,8 @@
 package com.squarecross.photoalbum.service;
 
 import com.squarecross.photoalbum.domain.Album;
+import com.squarecross.photoalbum.domain.Photo;
+import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,17 +28,20 @@ class AlbumServiceTest {
         album.setName("name");
         Long albumId = albumRepository.save(album);
 
-        Album findAlbum = albumService.getAlbum(albumId);
+        AlbumDto findAlbum = albumService.getAlbum(albumId);
 
-        assertEquals("name", findAlbum.getName());
+        assertEquals("name", findAlbum.getAlbumName());
     }
 
     @Test()
     public void 존재하지_않는_앨범조회() throws Exception{
-
         assertThrows(IllegalStateException.class, () -> {
             albumService.getAlbum(100L);
         });
+    }
+
+    @Test
+    public void 사진갯수_조회() throws Exception {
 
     }
 

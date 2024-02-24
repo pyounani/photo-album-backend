@@ -33,4 +33,8 @@ public class Photo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "album_id")
     private Album album;
+
+    public void setAlbum(Album album) {
+        this.album = album;
+    }
 }
