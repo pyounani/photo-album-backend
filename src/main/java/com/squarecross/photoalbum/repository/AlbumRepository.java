@@ -14,8 +14,9 @@ public class AlbumRepository {
     private final EntityManager em;
 
     // 저장
-    public void save(Album album) {
+    public Long save(Album album) {
         em.persist(album);
+        return album.getId();
     }
 
     // 삭제

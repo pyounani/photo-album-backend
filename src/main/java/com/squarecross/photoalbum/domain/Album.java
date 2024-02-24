@@ -1,6 +1,7 @@
 package com.squarecross.photoalbum.domain;
 
 import lombok.Getter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -19,10 +20,14 @@ public class Album {
     private String name;
 
     @Column(name = "create_at", unique = false, nullable = false)
+    @CreationTimestamp
     private LocalDate createdAt;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "album", cascade = CascadeType.ALL)
     private List<Photo> photos;
 
+    public void setName(String name) {
+        this.name = name;
+    }
 }
 

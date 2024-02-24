@@ -1,5 +1,7 @@
 package com.squarecross.photoalbum.domain;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 
@@ -25,6 +27,7 @@ public class Photo {
     private int fileSize;
 
     @Column(name = "uploaded_at", unique = false, nullable = true)
+    @CreationTimestamp
     private LocalDate uploadedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
