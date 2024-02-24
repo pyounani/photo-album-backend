@@ -2,13 +2,13 @@ package com.squarecross.photoalbum.controller;
 
 import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.service.AlbumService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +21,23 @@ public class AlbumController {
     public ResponseEntity<AlbumDto> getAlbum(@PathVariable("albumId") final Long albumId) {
         AlbumDto album = albumService.getAlbum(albumId);
         return new ResponseEntity<>(album, HttpStatus.OK);
+    }
+
+    @GetMapping("/query")
+    public ResponseEntity<AlbumDto> getAlbumByQuery(@RequestParam Long albumId) {
+        AlbumDto album = albumService.getAlbum(albumId);
+        return new ResponseEntity<>(album, HttpStatus.OK);
+    }
+
+    @GetMapping("/json_body")
+    public ResponseEntity<AlbumDto> getAlbumByJson(@RequestBody AlbumResponseDto albumResponseDto) {
+        AlbumDto album = albumService.getAlbum(albumResponseDto.getAlbumId());
+        return new ResponseEntity<>(album, HttpStatus.OK);
+    }
+
+    @Getter
+    public static class AlbumResponseDto {
+        private Long albumId;
     }
 
 }
