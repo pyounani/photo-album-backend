@@ -19,7 +19,7 @@ public class Album {
     @Column(name = "album_name", unique = false, nullable = false)
     private String name;
 
-    @Column(name = "create_at", unique = false, nullable = false)
+    @Column(name = "created_at", unique = false, nullable = false)
     @CreationTimestamp
     private LocalDate createdAt;
 

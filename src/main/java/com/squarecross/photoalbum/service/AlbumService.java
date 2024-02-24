@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -21,11 +19,7 @@ public class AlbumService {
         if(findAlbum == null) {
             throw new IllegalStateException("존재하지 않는 앨범 아이디입니다.");
         } else {
-            return AlbumDto.createAlbumDto(
-                    findAlbum.getId(),
-                    findAlbum.getName(),
-                    findAlbum.getCreatedAt(),
-                    findAlbum.getPhotos().size());
+            return AlbumDto.createAlbumDto(findAlbum);
         }
     }
 }

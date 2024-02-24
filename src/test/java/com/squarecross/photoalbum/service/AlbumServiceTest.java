@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -42,7 +40,13 @@ class AlbumServiceTest {
 
     @Test
     public void 사진갯수_조회() throws Exception {
+       Album album = new Album();
+        album.setName("name");
+        Long albumId = albumRepository.save(album);
 
+        // 추후에 Photo까지 개발을 하고 다시 테스트
+        AlbumDto findAlbumDto = albumService.getAlbum(albumId);
+        assertEquals(0, findAlbumDto.getCount());
     }
 
 }
