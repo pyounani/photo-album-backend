@@ -27,4 +27,7 @@ public class Photo {
     @Column(name = "uploaded_at", unique = false, nullable = true)
     private LocalDate uploadedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "album_id")
+    private Album album;
 }

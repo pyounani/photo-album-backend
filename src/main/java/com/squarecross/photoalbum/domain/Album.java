@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name="album", schema="photo_album", uniqueConstraints = {@UniqueConstraint(columnNames = "album_id")})
@@ -19,6 +20,9 @@ public class Album {
 
     @Column(name = "create_at", unique = false, nullable = false)
     private LocalDate createdAt;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "album", cascade = CascadeType.ALL)
+    private List<Photo> photos;
 
 }
 
