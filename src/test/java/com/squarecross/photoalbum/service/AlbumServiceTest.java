@@ -6,18 +6,14 @@ import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -93,6 +89,17 @@ class AlbumServiceTest {
         Album findAlbum = albumRepository.findOne(albumId);
 
         assertEquals("changeName", findAlbum.getName());
+    }
+
+    @Test
+    public void 앨범_삭제() throws Exception {
+        Album album = new Album();
+        album.setName("name");
+        Long albumId = albumRepository.save(album);
+
+        albumService.deleteAlbum(albumId);
+
+        assertEquals(null, albumRepository.findOne(albumId));
     }
 
     @AfterEach

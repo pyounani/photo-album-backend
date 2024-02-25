@@ -10,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 
@@ -53,6 +55,40 @@ public class AlbumService {
         return AlbumMapper.convertToDto(findAlbum);
     }
 
+    public void deleteAlbum(Long albumId) throws IOException{
+        albumRepository.delete(albumId);
+        cleanupAlbumDirectories(albumId);
+    }
+
+    private void cleanupAlbumDirectories(Long albumId) throws IOException {
+        String originalPath = "Constants.PATH_PREFIX + \"/photos/original/\" + albumId";
+        String thumbPath = "Constants.PATH_PREFIX + \"/photos/original/\" + albumId";
+        
+         deleteDirectory(originalPath);
+         deleteDirectory(thumbPath);
+    }
+
+    private void deleteDirectory(String path) {
+        File folder = new File(path);
+        try {
+            while(folder.exists()) {
+                File[] folder_list = folder.listFiles(); //파일리스트 얻어오기
+
+                for (int j = 0; j < folder_list.length; j++) {
+                    folder_list[j].delete(); //파일 삭제
+                    System.out.println("파일이 삭제되었습니다.");
+
+                }
+
+                if(folder_list.length == 0 && folder.isDirectory()){
+                    folder.delete(); //대상폴더 삭제
+                    System.out.println("폴더가 삭제되었습니다.");
+                }
+            }
+        } catch (Exception e) {
+            e.getStackTrace();
+        }
+    }
 
     private void creteAlbumDirectories(Album album) throws IOException {
         Files.createDirectories(Paths.get(Constants.PATH_PREFIX + "/photos/original/" + album.getId()));
