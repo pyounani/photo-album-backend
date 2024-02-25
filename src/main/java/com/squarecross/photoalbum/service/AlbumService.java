@@ -7,6 +7,7 @@ import com.squarecross.photoalbum.mapper.AlbumMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.lang.annotation.After;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ public class AlbumService {
         return AlbumMapper.convertToDto(album);
     }
 
+    @Transactional(readOnly = true)
     public AlbumDto getAlbum(Long albumId) {
         Album findAlbum = albumRepository.findOne(albumId);
         if(findAlbum == null) {
@@ -56,37 +58,41 @@ public class AlbumService {
     }
 
     public void deleteAlbum(Long albumId) throws IOException{
-        albumRepository.delete(albumId);
         cleanupAlbumDirectories(albumId);
+        albumRepository.delete(albumId);
     }
 
     private void cleanupAlbumDirectories(Long albumId) throws IOException {
-        String originalPath = "Constants.PATH_PREFIX + \"/photos/original/\" + albumId";
-        String thumbPath = "Constants.PATH_PREFIX + \"/photos/original/\" + albumId";
-        
-         deleteDirectory(originalPath);
-         deleteDirectory(thumbPath);
+        Path originalPath = Paths.get(Constants.PATH_PREFIX + "/photos/original/" + albumId);
+        Path thumbPath = Paths.get(Constants.PATH_PREFIX + "/photos/thumb/" + albumId);
+
+        deleteDirectory(originalPath);
+        deleteDirectory(thumbPath);
     }
 
-    private void deleteDirectory(String path) {
-        File folder = new File(path);
+    private void deleteDirectory(Path path) {
         try {
-            while(folder.exists()) {
-                File[] folder_list = folder.listFiles(); //파일리스트 얻어오기
+            if (Files.exists(path)) {
+                File[] folder_list = path.toFile().listFiles(); // Get the list of files
 
-                for (int j = 0; j < folder_list.length; j++) {
-                    folder_list[j].delete(); //파일 삭제
-                    System.out.println("파일이 삭제되었습니다.");
-
+                if (folder_list != null) {
+                    for (int j = 0; j < folder_list.length; j++) {
+                        if (folder_list[j].isDirectory()) {
+                            deleteDirectory(folder_list[j].toPath()); // Recursively delete subdirectories
+                        } else {
+                            folder_list[j].delete(); // Delete files
+                            System.out.println("File deleted: " + folder_list[j].getName());
+                        }
+                    }
                 }
 
-                if(folder_list.length == 0 && folder.isDirectory()){
-                    folder.delete(); //대상폴더 삭제
-                    System.out.println("폴더가 삭제되었습니다.");
-                }
+                Files.deleteIfExists(path); // Delete the directory itself
+                System.out.println("Folder deleted: " + path.toString());
+            } else {
+                System.out.println("Directory does not exist: " + path.toString());
             }
         } catch (Exception e) {
-            e.getStackTrace();
+            e.printStackTrace();
         }
     }
 
