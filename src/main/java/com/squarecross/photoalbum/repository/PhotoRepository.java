@@ -28,4 +28,8 @@ public class PhotoRepository {
             return 0;
         }
     }
+
+    public Photo findOne(Long photoId) {
+        return em.find(Photo.class, photoId);
+    }
 }
