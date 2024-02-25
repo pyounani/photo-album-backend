@@ -5,6 +5,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "photo", schema = "photo_album", uniqueConstraints = {@UniqueConstraint(columnNames = "photo_id")})
@@ -30,7 +32,7 @@ public class Photo {
 
     @Column(name = "uploaded_at", unique = false, nullable = true)
     @CreationTimestamp
-    private LocalDate uploadedAt;
+    private LocalDateTime uploadedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "album_id")

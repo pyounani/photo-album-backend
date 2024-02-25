@@ -5,6 +5,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -21,7 +23,7 @@ public class Album {
 
     @Column(name = "created_at", unique = false, nullable = false)
     @CreationTimestamp
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "album", cascade = CascadeType.ALL)
     private List<Photo> photos;
