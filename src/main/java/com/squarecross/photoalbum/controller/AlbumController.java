@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,6 +44,7 @@ public class AlbumController {
     }
 
     @Getter
+
     public static class AlbumResponseDto {
         private Long albumId;
     }

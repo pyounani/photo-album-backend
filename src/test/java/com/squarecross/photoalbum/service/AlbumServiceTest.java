@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
@@ -76,6 +77,22 @@ class AlbumServiceTest {
         albumId = findAlbumDto.getAlbumId();
 
         assertEquals("name", findAlbum.getName());
+    }
+
+    @Test
+    public void 앨범명_변경() throws Exception {
+        Album album = new Album();
+        album.setName("name");
+        Long albumId = albumRepository.save(album);
+
+        AlbumDto albumDto = new AlbumDto();
+        albumDto.setAlbumName("changeName");
+
+        albumService.changeAlbumName(albumId, albumDto);
+
+        Album findAlbum = albumRepository.findOne(albumId);
+
+        assertEquals("changeName", findAlbum.getName());
     }
 
     @AfterEach

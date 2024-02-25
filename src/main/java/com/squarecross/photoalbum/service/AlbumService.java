@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional
@@ -40,6 +41,19 @@ public class AlbumService {
             return albumDto;
         }
     }
+
+    public AlbumDto changeAlbumName(Long albumId, AlbumDto albumDto) {
+        Album findAlbum = albumRepository.findOne(albumId);
+        if (findAlbum == null) {
+            throw new NoSuchElementException("앨범 아이디가 존재하지 않습니다.");
+        }
+
+        findAlbum.setName(albumDto.getAlbumName());
+
+        return AlbumMapper.convertToDto(findAlbum);
+    }
+
+
     private void creteAlbumDirectories(Album album) throws IOException {
         Files.createDirectories(Paths.get(Constants.PATH_PREFIX + "/photos/original/" + album.getId()));
         Files.createDirectories(Paths.get(Constants.PATH_PREFIX + "/photos/thumb/" + album.getId()));
