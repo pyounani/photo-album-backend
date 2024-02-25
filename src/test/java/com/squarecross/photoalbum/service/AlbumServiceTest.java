@@ -4,6 +4,7 @@ import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.repository.AlbumRepository;
+import com.squarecross.photoalbum.repository.PhotoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +18,9 @@ class AlbumServiceTest {
 
     @Autowired
     AlbumRepository albumRepository;
+
+    @Autowired
+    PhotoRepository photoRepository;
 
     @Autowired AlbumService albumService;
 
@@ -40,13 +44,16 @@ class AlbumServiceTest {
 
     @Test
     public void 사진갯수_조회() throws Exception {
-       Album album = new Album();
+        Album album = new Album();
         album.setName("name");
         Long albumId = albumRepository.save(album);
 
-        // 추후에 Photo까지 개발을 하고 다시 테스트
+        Photo photo = new Photo();
+        photo.setAlbum(album);
+        photoRepository.save(photo);
+
         AlbumDto findAlbumDto = albumService.getAlbum(albumId);
-        assertEquals(0, findAlbumDto.getCount());
+        assertEquals(1, findAlbumDto.getCount());
     }
 
 }

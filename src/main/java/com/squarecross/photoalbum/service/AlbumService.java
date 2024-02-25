@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class AlbumService {
 
@@ -23,7 +23,8 @@ public class AlbumService {
             throw new IllegalStateException("존재하지 않는 앨범 아이디입니다.");
         } else {
             AlbumDto albumDto = AlbumMapper.convertToDto(findAlbum);
-            albumDto.setCount(photoRepository.countAlbum(findAlbum.getId()));
+            System.out.println(photoRepository.countAlbum(albumId));
+            albumDto.setCount(photoRepository.countAlbum(albumId));
             return albumDto;
         }
     }

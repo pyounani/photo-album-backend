@@ -1,12 +1,11 @@
 package com.squarecross.photoalbum.repository;
 
-import com.squarecross.photoalbum.domain.Album;
+import com.squarecross.photoalbum.domain.Photo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import java.util.List;
+import javax.persistence.NoResultException;
 
 @Repository
 @RequiredArgsConstructor
@@ -14,10 +13,19 @@ public class PhotoRepository {
 
     private final EntityManager em;
 
+    public Long save(Photo photo) {
+        em.persist(photo);
+        return photo.getId();
+    }
+
     public int countAlbum(Long albumId) {
-        Long count = em.createQuery("SELECT COUNT(p) FROM Photo p WHERE p.album.id = :albumId", Long.class)
-                .setParameter("albumId", albumId)
-                .getSingleResult();
-        return count.intValue();
+        try {
+            Long count = em.createQuery("SELECT COUNT(p) FROM Photo p WHERE p.album.id = :albumId", Long.class)
+                    .setParameter("albumId", albumId)
+                    .getSingleResult();
+            return count.intValue();
+        } catch (NoResultException e) {
+            return 0;
+        }
     }
 }
