@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 @RestController
@@ -32,6 +33,12 @@ public class AlbumController {
     @GetMapping("/json_body")
     public ResponseEntity<AlbumDto> getAlbumByJson(@RequestBody AlbumResponseDto albumResponseDto) {
         AlbumDto album = albumService.getAlbum(albumResponseDto.getAlbumId());
+        return new ResponseEntity<>(album, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<AlbumDto> createAlbum(@RequestBody AlbumDto albumDto) throws IOException {
+        AlbumDto album = albumService.createAlbum(albumDto);
         return new ResponseEntity<>(album, HttpStatus.OK);
     }
 

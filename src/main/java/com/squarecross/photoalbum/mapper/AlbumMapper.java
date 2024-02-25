@@ -11,4 +11,12 @@ public class AlbumMapper {
         albumDto.setCreatedAt(album.getCreatedAt());
         return albumDto;
     }
+
+    public static Album convertToModel(AlbumDto albumDto) {
+        Album album = new Album();
+        album.setId(albumDto.getAlbumId());
+        album.setName(albumDto.getAlbumName());
+        album.setCreatedAt(albumDto.getCreatedAt());
+        return album;
+    }
 }
