@@ -1,5 +1,6 @@
 package com.squarecross.photoalbum.service;
 
+import com.squarecross.photoalbum.Constants;
 import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.PhotoDto;
@@ -13,6 +14,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 @Service
@@ -22,6 +26,9 @@ public class PhotoService {
 
     private final PhotoRepository photoRepository;
     private final AlbumRepository albumRepository;
+
+    private final String original_path = Constants.PATH_PREFIX + "/photos/original";
+    private final String thumb_path = Constants.PATH_PREFIX + "/photos/thumb";
 
     public PhotoDto getPhoto(Long photoId) {
         Photo findPhoto = photoRepository.findOne(photoId);
@@ -59,6 +66,13 @@ public class PhotoService {
             count++;
         }
         return fileName;
+    }
+
+    private void saveFile(MultipartFile file, Long AlbumId, String fileName) throws IOException {
+        String filePath = AlbumId + "/" + fileName;
+        Files.copy(file.getInputStream(), Paths.get(original_path + "/" + filePath));
+
+
     }
 
 
