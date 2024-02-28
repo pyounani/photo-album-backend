@@ -8,7 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -23,4 +26,11 @@ public class PhotoController {
         PhotoDto res = photoService.getPhoto(photoId);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
+
+//    @PostMapping
+//    public ResponseEntity<List<PhotoDto>> uploadPhotos(@PathVariable("albumId") Long albumId,
+//                                                       @PathVariable("photoId") Long photoId) {
+//
+//    }
+
 }
