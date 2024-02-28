@@ -1,6 +1,7 @@
 package com.squarecross.photoalbum.domain;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.util.Date;
 @Entity
 @Table(name = "photo", schema = "photo_album", uniqueConstraints = {@UniqueConstraint(columnNames = "photo_id")})
 @Getter
+@Setter
 public class Photo {
 
     @Id
@@ -38,7 +40,4 @@ public class Photo {
     @JoinColumn(name = "album_id")
     private Album album;
 
-    public void setAlbum(Album album) {
-        this.album = album;
-    }
 }
