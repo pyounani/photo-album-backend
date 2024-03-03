@@ -32,8 +32,9 @@ public class PhotoRepository {
         }
     }
 
-    public Photo findOne(Long photoId) {
-        return em.find(Photo.class, photoId);
+    public Optional<Photo> findOne(Long photoId) {
+        Photo photo = em.find(Photo.class, photoId);
+        return Optional.ofNullable(photo);
     }
 
     public Optional<Photo> findByFileNameAndAlbum_AlbumId(String photoName, Long albumId) {
