@@ -30,11 +30,13 @@ public class PhotoController {
     @PostMapping
     public ResponseEntity<List<PhotoDto>> uploadPhotos(@PathVariable("albumId") Long albumId,
                                                        @RequestParam("photos") MultipartFile[] files) throws IOException {
+
         List<PhotoDto> photos = new ArrayList<>();
         for (MultipartFile file : files) {
             PhotoDto photoDto = photoService.savePhoto(file, albumId);
             photos.add(photoDto);
         }
+
         return new ResponseEntity<>(photos, HttpStatus.OK);
     }
 

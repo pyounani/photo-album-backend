@@ -14,10 +14,12 @@ public class PhotoRepository {
 
     private final EntityManager em;
 
-    public Long save(Photo photo) {
+    public Photo save(Photo photo) {
         em.persist(photo);
-        return photo.getId();
+        em.flush();
+        return photo;
     }
+
 
     public int countAlbum(Long albumId) {
         try {

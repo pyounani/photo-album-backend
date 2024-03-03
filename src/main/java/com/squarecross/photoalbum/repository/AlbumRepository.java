@@ -16,6 +16,7 @@ public class AlbumRepository {
     // 저장
     public Long save(Album album) {
         em.persist(album);
+        em.flush();
         return album.getId();
     }
 

@@ -32,9 +32,9 @@ class PhotoServiceTest {
 
         Photo photo = new Photo();
         photo.setAlbum(album);
-        Long photoId = photoRepository.save(photo);
+        Photo savePhoto = photoRepository.save(photo);
 
-        PhotoDto findPhoto = photoService.getPhoto(photoId);
+        PhotoDto findPhoto = photoService.getPhoto(savePhoto.getId());
 
         assertEquals(albumId, findPhoto.getAlbumId());
 

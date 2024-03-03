@@ -18,9 +18,12 @@ import javax.imageio.ImageIO;
 import javax.persistence.EntityNotFoundException;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.InputMismatchException;
 import java.util.Optional;
 
 @Service
@@ -57,8 +60,8 @@ public class PhotoService {
         photo.setThumbUrl("/photos/thumb/" + albumId + "/" + fileName);
         photo.setFileSize(fileSize);
         photo.setAlbum(findAlbum);
-        photoRepository.save(photo);
-        return PhotoMapper.convertToDto(photo);
+        Photo createdPhoto = photoRepository.save(photo);
+        return PhotoMapper.convertToDto(createdPhoto);
     }
 
     private String getNextFileName(String fileName, Long albumId) {
@@ -76,22 +79,26 @@ public class PhotoService {
         return fileName;
     }
 
-    private void saveFile(MultipartFile file, Long AlbumId, String fileName) throws IOException {
-        try {
-            String filePath = AlbumId + "/" + fileName;
-            Files.copy(file.getInputStream(), Paths.get(original_path + "/" + filePath));
+    private void saveFile(MultipartFile file, Long albumId, String fileName) throws IOException {
+        String filePath = albumId + "/" + fileName;
 
-            BufferedImage thumbImg = Scalr.resize(ImageIO.read(file.getInputStream()), Constants.THUMB_SIZE, Constants.THUMB_SIZE);
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, Paths.get(original_path + "/" + filePath));
+        } catch (IOException e) {
+            throw new RuntimeException("Error copying file", e);
+        }
+
+        try (InputStream inputStream = file.getInputStream()) {
+            BufferedImage thumbImg = Scalr.resize(ImageIO.read(inputStream), Constants.THUMB_SIZE, Constants.THUMB_SIZE);
             File thumbFile = new File(thumb_path + "/" + filePath);
             String ext = StringUtils.getFilenameExtension(fileName);
             if (ext == null) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("File extension is null");
             }
             ImageIO.write(thumbImg, ext, thumbFile);
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new RuntimeException("Error creating thumbnail", e);
         }
-
     }
 
 
