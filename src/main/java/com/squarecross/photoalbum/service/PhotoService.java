@@ -100,6 +100,19 @@ public class PhotoService {
         return new File(Constants.PATH_PREFIX + findPhoto.get().getOriginalUrl());
     }
 
+    public PhotoDto changeAlbumForPhoto(Long albumId, Long photoId) {
+        Optional<Photo> findPhoto = photoRepository.findOne(photoId);
+        if (findPhoto.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        Album findAlbum = albumRepository.findOne(albumId);
+        if (findAlbum == null) {
+            throw new EntityNotFoundException();
+        }
+        findPhoto.get().setAlbum(findAlbum);
+        return PhotoMapper.convertToDto(findPhoto.get());
+    }
+
     private String getNextFileName(String fileName, Long albumId) {
         String fileNameNoExt = StringUtils.stripFilenameExtension(fileName);
         String ext = StringUtils.getFilenameExtension(fileName);

@@ -62,5 +62,26 @@ class PhotoServiceTest {
 
     }
 
+    @Test
+    public void 앨범_바꾸기() {
+
+        Album album1 = new Album();
+        album1.setName("album1");
+        albumRepository.save(album1);
+
+        Album album2 = new Album();
+        album2.setName("album2");
+        Long newAlbumId = albumRepository.save(album2);
+
+        Photo photo1 = new Photo();
+        photo1.setAlbum(album1);
+        Photo savePhoto = photoRepository.save(photo1);
+
+        PhotoDto photoDto = photoService.changeAlbumForPhoto(newAlbumId, savePhoto.getId());
+
+        assertEquals(newAlbumId, photoDto.getAlbumId());
+
+    }
+
 
 }
