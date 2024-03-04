@@ -59,6 +59,12 @@ public class PhotoController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<List<PhotoDto>> getPhotoList(@PathVariable("albumId") Long albumId) {
+        List<PhotoDto> res = photoService.getPhotoList(albumId);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
     private void downloadSinglePhoto(Long photoId, HttpServletResponse response) throws IOException {
         File file = photoService.getImageFile(photoId);
         try (FileInputStream fileInputStream = new FileInputStream(file);

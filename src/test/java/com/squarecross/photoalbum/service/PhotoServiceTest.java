@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -39,5 +41,26 @@ class PhotoServiceTest {
         assertEquals(albumId, findPhoto.getAlbumId());
 
     }
+
+    @Test
+    public void 사진_목록_불러오기() {
+        Album album = new Album();
+        album.setName("name");
+        Long albumId = albumRepository.save(album);
+
+        Photo photo1 = new Photo();
+        photo1.setAlbum(album);
+        photoRepository.save(photo1);
+
+        Photo photo2 = new Photo();
+        photo2.setAlbum(album);
+        photoRepository.save(photo2);
+
+        List<PhotoDto> photoList = photoService.getPhotoList(albumId);
+
+        assertEquals(2, photoList.size());
+
+    }
+
 
 }

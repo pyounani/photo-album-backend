@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -48,5 +49,11 @@ public class PhotoRepository {
         } catch (NoResultException e) {
             return Optional.empty();
         }
+    }
+
+    public List<Photo> findByAlbum(Long albumId) {
+        return em.createQuery("select p from Photo p where p.album.id = :albumId", Photo.class)
+                .setParameter("albumId", albumId)
+                .getResultList();
     }
 }

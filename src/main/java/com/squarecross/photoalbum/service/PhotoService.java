@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -47,6 +49,13 @@ public class PhotoService {
         }
         // DTO로 변환하여 반환
         return PhotoMapper.convertToDto(findPhoto.get());
+    }
+
+    public List<PhotoDto> getPhotoList(Long albumId) {
+        List<Photo> findPhotoList = photoRepository.findByAlbum(albumId);
+        return findPhotoList.stream()
+                .map(PhotoMapper::convertToDto)
+                .collect(Collectors.toList());
     }
 
     public PhotoDto savePhoto(MultipartFile file, Long albumId) throws IOException {
