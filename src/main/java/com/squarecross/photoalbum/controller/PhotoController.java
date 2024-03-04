@@ -1,5 +1,6 @@
 package com.squarecross.photoalbum.controller;
 
+import com.squarecross.photoalbum.dto.ChangeAlbumDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
 import com.squarecross.photoalbum.service.PhotoService;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +58,22 @@ public class PhotoController {
         } catch (IOException e) {
             throw new RuntimeException("Error processing download request", e);
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PhotoDto>> getPhotoList(@PathVariable("albumId") Long albumId) {
+        List<PhotoDto> res = photoService.getPhotoList(albumId);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @PutMapping("/move")
+    public ResponseEntity<List<PhotoDto>> changeAlbumForPhoto(@RequestBody ChangeAlbumDto changeAlbumDto) {
+        List<PhotoDto> photos = new ArrayList<>();
+        for(Long photoId : changeAlbumDto.getPhotoIds()) {
+            PhotoDto photoDto = photoService.changeAlbumForPhoto(changeAlbumDto.getToAlbumId(), photoId);
+            photos.add(photoDto);
+        }
+        return new ResponseEntity<>(photos, HttpStatus.OK);
     }
 
     private void downloadSinglePhoto(Long photoId, HttpServletResponse response) throws IOException {

@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -47,6 +49,13 @@ public class PhotoService {
         }
         // DTO로 변환하여 반환
         return PhotoMapper.convertToDto(findPhoto.get());
+    }
+
+    public List<PhotoDto> getPhotoList(Long albumId) {
+        List<Photo> findPhotoList = photoRepository.findByAlbum(albumId);
+        return findPhotoList.stream()
+                .map(PhotoMapper::convertToDto)
+                .collect(Collectors.toList());
     }
 
     public PhotoDto savePhoto(MultipartFile file, Long albumId) throws IOException {
@@ -89,6 +98,19 @@ public class PhotoService {
         }
         // 파일 경로 생성 및 반환
         return new File(Constants.PATH_PREFIX + findPhoto.get().getOriginalUrl());
+    }
+
+    public PhotoDto changeAlbumForPhoto(Long albumId, Long photoId) {
+        Optional<Photo> findPhoto = photoRepository.findOne(photoId);
+        if (findPhoto.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        Album findAlbum = albumRepository.findOne(albumId);
+        if (findAlbum == null) {
+            throw new EntityNotFoundException();
+        }
+        findPhoto.get().setAlbum(findAlbum);
+        return PhotoMapper.convertToDto(findPhoto.get());
     }
 
     private String getNextFileName(String fileName, Long albumId) {
