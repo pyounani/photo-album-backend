@@ -7,10 +7,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class PhotoDto {
+public class PhotoDetailsDto {
+
     private Long photoId;
     private String fileName;
-    private String thumbUrl;
+    private String originalUrl;
     private LocalDateTime uploadedAt;
-
+    private int fileSize;
 }

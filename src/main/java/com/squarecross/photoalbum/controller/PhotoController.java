@@ -1,6 +1,7 @@
 package com.squarecross.photoalbum.controller;
 
-import com.squarecross.photoalbum.dto.ChangeAlbumDto;
+import com.squarecross.photoalbum.dto.ChangeAlbumRequestDto;
+import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
 import com.squarecross.photoalbum.service.PhotoService;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +27,9 @@ public class PhotoController {
     private final PhotoService photoService;
 
     @GetMapping("/{photoId}")
-    public ResponseEntity<PhotoDto> getPhotoInfo(@PathVariable("albumId") Long albumId,
-                                                 @PathVariable("photoId") Long photoId) {
-        PhotoDto res = photoService.getPhoto(photoId);
+    public ResponseEntity<PhotoDetailsDto> getPhotoInfo(@PathVariable("albumId") Long albumId,
+                                                        @PathVariable("photoId") Long photoId) {
+        PhotoDetailsDto res = photoService.getPhoto(photoId);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
@@ -67,7 +68,7 @@ public class PhotoController {
     }
 
     @PutMapping("/move")
-    public ResponseEntity<List<PhotoDto>> changeAlbumForPhoto(@RequestBody ChangeAlbumDto changeAlbumDto) {
+    public ResponseEntity<List<PhotoDto>> changeAlbumForPhoto(@RequestBody ChangeAlbumRequestDto changeAlbumDto) {
         List<PhotoDto> photos = new ArrayList<>();
         for(Long photoId : changeAlbumDto.getPhotoIds()) {
             PhotoDto photoDto = photoService.changeAlbumForPhoto(changeAlbumDto.getToAlbumId(), photoId);

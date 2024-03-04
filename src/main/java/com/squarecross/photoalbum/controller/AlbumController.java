@@ -32,8 +32,8 @@ public class AlbumController {
     }
 
     @GetMapping("/json_body")
-    public ResponseEntity<AlbumDto> getAlbumByJson(@RequestBody AlbumResponseDto albumResponseDto) {
-        AlbumDto album = albumService.getAlbum(albumResponseDto.getAlbumId());
+    public ResponseEntity<AlbumDto> getAlbumByJson(@RequestBody AlbumDto albumDto) {
+        AlbumDto album = albumService.getAlbum(albumDto.getAlbumId());
         return new ResponseEntity<>(album, HttpStatus.OK);
     }
 
@@ -54,12 +54,6 @@ public class AlbumController {
     public ResponseEntity<Void> deleteAlbum(@PathVariable("albumId") Long albumId) throws IOException {
         albumService.deleteAlbum(albumId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @Getter
-
-    public static class AlbumResponseDto {
-        private Long albumId;
     }
 
 }
