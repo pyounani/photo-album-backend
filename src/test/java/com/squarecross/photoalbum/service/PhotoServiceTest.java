@@ -2,6 +2,7 @@ package com.squarecross.photoalbum.service;
 
 import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
+import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,9 +38,9 @@ class PhotoServiceTest {
         photo.setAlbum(album);
         Photo savePhoto = photoRepository.save(photo);
 
-        PhotoDto findPhoto = photoService.getPhoto(savePhoto.getId());
+        PhotoDetailsDto findPhoto = photoService.getPhoto(savePhoto.getId());
 
-        assertEquals(albumId, findPhoto.getAlbumId());
+        assertEquals(savePhoto.getId(), findPhoto.getPhotoId());
 
     }
 
@@ -77,9 +79,11 @@ class PhotoServiceTest {
         photo1.setAlbum(album1);
         Photo savePhoto = photoRepository.save(photo1);
 
-        PhotoDto photoDto = photoService.changeAlbumForPhoto(newAlbumId, savePhoto.getId());
+        photoService.changeAlbumForPhoto(newAlbumId, savePhoto.getId());
 
-        assertEquals(newAlbumId, photoDto.getAlbumId());
+        Optional<Photo> findPhoto = photoRepository.findOne(savePhoto.getId());
+
+        assertEquals(newAlbumId, findPhoto.get().getAlbum().getId());
 
     }
 

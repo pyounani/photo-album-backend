@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ChangeAlbumDto {
+public class ChangeAlbumRequestDto {
 
     private Long fromAlbumId;
     private Long toAlbumId;

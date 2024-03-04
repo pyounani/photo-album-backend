@@ -3,6 +3,7 @@ package com.squarecross.photoalbum.service;
 import com.squarecross.photoalbum.Constants;
 import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
+import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
 import com.squarecross.photoalbum.mapper.PhotoMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
@@ -40,7 +41,7 @@ public class PhotoService {
     private final String original_path = Constants.PATH_PREFIX + "/photos/original";
     private final String thumb_path = Constants.PATH_PREFIX + "/photos/thumb";
 
-    public PhotoDto getPhoto(Long photoId) {
+    public PhotoDetailsDto getPhoto(Long photoId) {
         // 사진 정보를 찾아오기
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
         if (findPhoto.isEmpty()) {
@@ -48,7 +49,7 @@ public class PhotoService {
             throw new EntityNotFoundException();
         }
         // DTO로 변환하여 반환
-        return PhotoMapper.convertToDto(findPhoto.get());
+        return PhotoMapper.convertToDetailsDto(findPhoto.get());
     }
 
     public List<PhotoDto> getPhotoList(Long albumId) {
