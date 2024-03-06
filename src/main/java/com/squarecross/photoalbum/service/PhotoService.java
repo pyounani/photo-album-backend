@@ -41,6 +41,7 @@ public class PhotoService {
     private final String original_path = Constants.PATH_PREFIX + "/photos/original";
     private final String thumb_path = Constants.PATH_PREFIX + "/photos/thumb";
 
+    @Transactional(readOnly = true)
     public PhotoDetailsDto getPhoto(Long photoId) {
         // 사진 정보를 찾아오기
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
@@ -52,6 +53,7 @@ public class PhotoService {
         return PhotoMapper.convertToDetailsDto(findPhoto.get());
     }
 
+    @Transactional(readOnly = true)
     public List<PhotoDto> getPhotoList(Long albumId) {
         List<Photo> findPhotoList = photoRepository.findByAlbum(albumId);
         return findPhotoList.stream()
@@ -90,6 +92,7 @@ public class PhotoService {
         return PhotoMapper.convertToDto(createdPhoto);
     }
 
+    @Transactional(readOnly = true)
     public File getImageFile(Long photoId) {
         // 사진 정보 조회
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
@@ -114,6 +117,7 @@ public class PhotoService {
         return PhotoMapper.convertToDto(findPhoto.get());
     }
 
+    @Transactional(readOnly = true)
     private String getNextFileName(String fileName, Long albumId) {
         String fileNameNoExt = StringUtils.stripFilenameExtension(fileName);
         String ext = StringUtils.getFilenameExtension(fileName);

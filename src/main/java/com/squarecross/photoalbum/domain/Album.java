@@ -29,9 +29,5 @@ public class Album {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "album", cascade = CascadeType.ALL)
     private List<Photo> photos;
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }
 
