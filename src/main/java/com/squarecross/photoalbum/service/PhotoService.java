@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -63,7 +64,7 @@ public class PhotoService {
 
     public PhotoDto savePhoto(MultipartFile file, Long albumId) throws IOException {
         // 앨범 정보 조회
-        Album findAlbum = albumRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if (findAlbum == null) {
             // 앨범이 없으면 EntityNotFoundException 발생
             throw new EntityNotFoundException();
@@ -85,7 +86,7 @@ public class PhotoService {
         photo.setOriginalUrl("/photos/original/" + albumId + "/" + fileName);
         photo.setThumbUrl("/photos/thumb/" + albumId + "/" + fileName);
         photo.setFileSize(fileSize);
-        photo.setAlbum(findAlbum);
+        photo.setAlbum(findAlbum.get());
         Photo createdPhoto = photoRepository.save(photo);
 
         // 저장된 Photo를 DTO로 변환하여 반환
@@ -109,11 +110,11 @@ public class PhotoService {
         if (findPhoto.isEmpty()) {
             throw new EntityNotFoundException();
         }
-        Album findAlbum = albumRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if (findAlbum == null) {
             throw new EntityNotFoundException();
         }
-        findPhoto.get().setAlbum(findAlbum);
+        findPhoto.get().setAlbum(findAlbum.get());
         return PhotoMapper.convertToDto(findPhoto.get());
     }
 

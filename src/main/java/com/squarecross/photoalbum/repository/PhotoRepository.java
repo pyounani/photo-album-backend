@@ -1,5 +1,6 @@
 package com.squarecross.photoalbum.repository;
 
+import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -55,5 +56,12 @@ public class PhotoRepository {
         return em.createQuery("select p from Photo p where p.album.id = :albumId", Photo.class)
                 .setParameter("albumId", albumId)
                 .getResultList();
+    }
+
+    public void delete(Long id) {
+        Photo findPhoto = em.find(Photo.class, id);
+        if(findPhoto != null) {
+            em.remove(findPhoto);
+        }
     }
 }
