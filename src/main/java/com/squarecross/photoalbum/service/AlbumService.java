@@ -1,8 +1,10 @@
 package com.squarecross.photoalbum.service;
 
 import com.squarecross.photoalbum.Constants;
+import com.squarecross.photoalbum.code.ErrorCode;
 import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.dto.AlbumDto;
+import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
 import com.squarecross.photoalbum.mapper.AlbumMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
@@ -39,12 +41,11 @@ public class AlbumService {
     public AlbumDto getAlbum(Long albumId) {
         Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if(findAlbum.isEmpty()) {
-            throw new EntityNotFoundException("존재하지 않는 앨범 아이디입니다.");
+            throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
         AlbumDto albumDto = AlbumMapper.convertToDto(findAlbum.get());
         albumDto.setCount(photoRepository.countAlbum(albumId));
         return albumDto;
-
     }
 
     public AlbumDto changeAlbumName(Long albumId, AlbumDto albumDto) {

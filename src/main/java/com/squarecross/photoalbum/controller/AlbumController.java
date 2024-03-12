@@ -1,6 +1,9 @@
 package com.squarecross.photoalbum.controller;
 
+import com.squarecross.photoalbum.code.ResponseCode;
 import com.squarecross.photoalbum.dto.AlbumDto;
+import com.squarecross.photoalbum.dto.ResponseDto;
+import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
 import com.squarecross.photoalbum.service.AlbumService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +23,12 @@ public class AlbumController {
     private final AlbumService albumService;
 
     @GetMapping("/{albumId}")
-    public ResponseEntity<AlbumDto> getAlbum(@PathVariable("albumId") final Long albumId) {
-        AlbumDto album = albumService.getAlbum(albumId);
-        return new ResponseEntity<>(album, HttpStatus.OK);
+    public ResponseEntity<ResponseDto> getAlbum(@PathVariable("albumId") final Long albumId) {
+        AlbumDto res = albumService.getAlbum(albumId);
+
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_GET_ALBUM.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_GET_ALBUM, res));
     }
 
     @GetMapping("/query")
