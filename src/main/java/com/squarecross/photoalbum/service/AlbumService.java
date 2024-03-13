@@ -1,8 +1,10 @@
 package com.squarecross.photoalbum.service;
 
 import com.squarecross.photoalbum.Constants;
+import com.squarecross.photoalbum.code.ErrorCode;
 import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.dto.AlbumDto;
+import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
 import com.squarecross.photoalbum.mapper.AlbumMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
@@ -11,12 +13,14 @@ import org.aspectj.lang.annotation.After;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -35,26 +39,24 @@ public class AlbumService {
 
     @Transactional(readOnly = true)
     public AlbumDto getAlbum(Long albumId) {
-        Album findAlbum = albumRepository.findOne(albumId);
-        if(findAlbum == null) {
-            throw new IllegalStateException("존재하지 않는 앨범 아이디입니다.");
-        } else {
-            AlbumDto albumDto = AlbumMapper.convertToDto(findAlbum);
-            System.out.println(photoRepository.countAlbum(albumId));
-            albumDto.setCount(photoRepository.countAlbum(albumId));
-            return albumDto;
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
+        if(findAlbum.isEmpty()) {
+            throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
+        AlbumDto albumDto = AlbumMapper.convertToDto(findAlbum.get());
+        albumDto.setCount(photoRepository.countAlbum(albumId));
+        return albumDto;
     }
 
     public AlbumDto changeAlbumName(Long albumId, AlbumDto albumDto) {
-        Album findAlbum = albumRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if (findAlbum == null) {
             throw new NoSuchElementException("앨범 아이디가 존재하지 않습니다.");
         }
 
-        findAlbum.setName(albumDto.getAlbumName());
+        findAlbum.get().setName(albumDto.getAlbumName());
 
-        return AlbumMapper.convertToDto(findAlbum);
+        return AlbumMapper.convertToDto(findAlbum.get());
     }
 
     public void deleteAlbum(Long albumId) throws IOException{

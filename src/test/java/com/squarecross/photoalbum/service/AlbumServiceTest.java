@@ -4,6 +4,7 @@ import com.squarecross.photoalbum.Constants;
 import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.AlbumDto;
+import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -12,8 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,14 +41,16 @@ class AlbumServiceTest {
         album.setName("name");
         Long albumId = albumRepository.save(album);
 
-        AlbumDto findAlbum = albumService.getAlbum(albumId);
+        AlbumDto savedAlbum = albumService.getAlbum(albumId);
 
-        assertEquals("name", findAlbum.getAlbumName());
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
+
+        assertEquals(savedAlbum.getAlbumId(), findAlbum.get().getId());
     }
 
     @Test()
     public void 존재하지_않는_앨범조회() throws Exception{
-        assertThrows(IllegalStateException.class, () -> {
+        assertThrows(AlbumIdNotFoundException.class, () -> {
             albumService.getAlbum(100L);
         });
     }
@@ -69,10 +75,10 @@ class AlbumServiceTest {
         albumDto.setAlbumName("name");
         AlbumDto findAlbumDto = albumService.createAlbum(albumDto);
 
-        Album findAlbum = albumRepository.findOne(findAlbumDto.getAlbumId());
+        Optional<Album> findAlbum = albumRepository.findOne(findAlbumDto.getAlbumId());
         albumId = findAlbumDto.getAlbumId();
 
-        assertEquals("name", findAlbum.getName());
+        assertEquals("name", findAlbum.get().getName());
     }
 
     @Test
@@ -86,20 +92,25 @@ class AlbumServiceTest {
 
         albumService.changeAlbumName(albumId, albumDto);
 
-        Album findAlbum = albumRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
 
-        assertEquals("changeName", findAlbum.getName());
+        assertEquals("changeName", findAlbum.get().getName());
     }
 
     @Test
     public void 앨범_삭제() throws Exception {
+
+        List<Album> albumList = albumRepository.findAll();
+
         Album album = new Album();
         album.setName("name");
         Long albumId = albumRepository.save(album);
 
         albumService.deleteAlbum(albumId);
 
-        assertEquals(null, albumRepository.findOne(albumId));
+        List<Album> deleteAlbumList = albumRepository.findAll();
+
+        assertEquals(albumList.size(), deleteAlbumList.size());
     }
 
     @AfterEach

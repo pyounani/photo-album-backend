@@ -47,4 +47,4 @@ out/
 ### 파일 경로 ###
 /src/main/java/com/squarecross/photoalbum/Constants.java
 
-./photos
+photos

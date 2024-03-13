@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -16,7 +17,6 @@ public class AlbumRepository {
     // 저장
     public Long save(Album album) {
         em.persist(album);
-        em.flush();
         return album.getId();
     }
 
@@ -29,8 +29,9 @@ public class AlbumRepository {
     }
 
     // 한 개만 조회
-    public Album findOne(Long id) {
-        return em.find(Album.class, id);
+    public Optional<Album> findOne(Long id) {
+        Album album = em.find(Album.class, id);
+        return Optional.ofNullable(album);
     }
 
     // 목록 조회

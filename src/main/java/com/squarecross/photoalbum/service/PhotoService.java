@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -41,6 +42,7 @@ public class PhotoService {
     private final String original_path = Constants.PATH_PREFIX + "/photos/original";
     private final String thumb_path = Constants.PATH_PREFIX + "/photos/thumb";
 
+    @Transactional(readOnly = true)
     public PhotoDetailsDto getPhoto(Long photoId) {
         // 사진 정보를 찾아오기
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
@@ -52,6 +54,7 @@ public class PhotoService {
         return PhotoMapper.convertToDetailsDto(findPhoto.get());
     }
 
+    @Transactional(readOnly = true)
     public List<PhotoDto> getPhotoList(Long albumId) {
         List<Photo> findPhotoList = photoRepository.findByAlbum(albumId);
         return findPhotoList.stream()
@@ -61,7 +64,7 @@ public class PhotoService {
 
     public PhotoDto savePhoto(MultipartFile file, Long albumId) throws IOException {
         // 앨범 정보 조회
-        Album findAlbum = albumRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if (findAlbum == null) {
             // 앨범이 없으면 EntityNotFoundException 발생
             throw new EntityNotFoundException();
@@ -83,13 +86,14 @@ public class PhotoService {
         photo.setOriginalUrl("/photos/original/" + albumId + "/" + fileName);
         photo.setThumbUrl("/photos/thumb/" + albumId + "/" + fileName);
         photo.setFileSize(fileSize);
-        photo.setAlbum(findAlbum);
+        photo.setAlbum(findAlbum.get());
         Photo createdPhoto = photoRepository.save(photo);
 
         // 저장된 Photo를 DTO로 변환하여 반환
         return PhotoMapper.convertToDto(createdPhoto);
     }
 
+    @Transactional(readOnly = true)
     public File getImageFile(Long photoId) {
         // 사진 정보 조회
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
@@ -106,14 +110,15 @@ public class PhotoService {
         if (findPhoto.isEmpty()) {
             throw new EntityNotFoundException();
         }
-        Album findAlbum = albumRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if (findAlbum == null) {
             throw new EntityNotFoundException();
         }
-        findPhoto.get().setAlbum(findAlbum);
+        findPhoto.get().setAlbum(findAlbum.get());
         return PhotoMapper.convertToDto(findPhoto.get());
     }
 
+    @Transactional(readOnly = true)
     private String getNextFileName(String fileName, Long albumId) {
         String fileNameNoExt = StringUtils.stripFilenameExtension(fileName);
         String ext = StringUtils.getFilenameExtension(fileName);
