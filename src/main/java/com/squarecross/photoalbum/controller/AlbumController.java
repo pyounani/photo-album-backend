@@ -44,9 +44,11 @@ public class AlbumController {
     }
 
     @PostMapping
-    public ResponseEntity<AlbumDto> createAlbum(@RequestBody AlbumDto albumDto) throws IOException {
-        AlbumDto album = albumService.createAlbum(albumDto);
-        return new ResponseEntity<>(album, HttpStatus.OK);
+    public ResponseEntity<ResponseDto> createAlbum(@RequestBody AlbumDto albumDto) throws IOException {
+        AlbumDto res = albumService.createAlbum(albumDto);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_POST_ALBUM.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_POST_ALBUM, res));
     }
 
     @PutMapping("/{albumId}")

@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ResponseCode {
     SUCCESS_GET_ALBUM(HttpStatus.OK, "앨범 기본 정보를 성공적으로 가져왔습니다."),
-
+    SUCCESS_POST_ALBUM(HttpStatus.OK, "앨범을 성공적으로 생성했습니다."),
     ;
 
     private final HttpStatus status;

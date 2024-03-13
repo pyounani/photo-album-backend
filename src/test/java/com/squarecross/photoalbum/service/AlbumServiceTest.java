@@ -4,6 +4,7 @@ import com.squarecross.photoalbum.Constants;
 import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.AlbumDto;
+import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +50,7 @@ class AlbumServiceTest {
 
     @Test()
     public void 존재하지_않는_앨범조회() throws Exception{
-        assertThrows(EntityNotFoundException.class, () -> {
+        assertThrows(AlbumIdNotFoundException.class, () -> {
             albumService.getAlbum(100L);
         });
     }
@@ -97,13 +99,18 @@ class AlbumServiceTest {
 
     @Test
     public void 앨범_삭제() throws Exception {
+
+        List<Album> albumList = albumRepository.findAll();
+
         Album album = new Album();
         album.setName("name");
         Long albumId = albumRepository.save(album);
 
         albumService.deleteAlbum(albumId);
 
-        assertEquals(null, albumRepository.findOne(albumId));
+        List<Album> deleteAlbumList = albumRepository.findAll();
+
+        assertEquals(albumList.size(), deleteAlbumList.size());
     }
 
     @AfterEach

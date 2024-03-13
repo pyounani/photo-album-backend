@@ -2,12 +2,10 @@ package com.squarecross.photoalbum.domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "photo", schema = "photo_album", uniqueConstraints = {@UniqueConstraint(columnNames = "photo_id")})
@@ -33,7 +31,7 @@ public class Photo {
     private int fileSize;
 
     @Column(name = "uploaded_at", unique = false, nullable = true)
-    @CreationTimestamp
+    @CreatedDate
     private LocalDateTime uploadedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
