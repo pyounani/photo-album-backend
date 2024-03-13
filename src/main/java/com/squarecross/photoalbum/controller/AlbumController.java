@@ -52,10 +52,12 @@ public class AlbumController {
     }
 
     @PutMapping("/{albumId}")
-    public ResponseEntity<AlbumDto> updateAlbum(@PathVariable("albumId") Long albumId,
+    public ResponseEntity<ResponseDto> updateAlbum(@PathVariable("albumId") Long albumId,
                                                 @RequestBody AlbumDto albumDto) {
         AlbumDto res = albumService.changeAlbumName(albumId, albumDto);
-        return new ResponseEntity<>(res, HttpStatus.OK);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_PUT_ALBUM.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_PUT_ALBUM, res));
     }
 
     @DeleteMapping("/{albumId}")

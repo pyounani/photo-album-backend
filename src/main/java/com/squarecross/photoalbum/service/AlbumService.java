@@ -50,12 +50,10 @@ public class AlbumService {
 
     public AlbumDto changeAlbumName(Long albumId, AlbumDto albumDto) {
         Optional<Album> findAlbum = albumRepository.findOne(albumId);
-        if (findAlbum == null) {
-            throw new NoSuchElementException("앨범 아이디가 존재하지 않습니다.");
+        if (findAlbum.isEmpty()) {
+            throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
-
         findAlbum.get().setName(albumDto.getAlbumName());
-
         return AlbumMapper.convertToDto(findAlbum.get());
     }
 

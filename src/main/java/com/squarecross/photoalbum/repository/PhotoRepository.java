@@ -18,7 +18,6 @@ public class PhotoRepository {
 
     public Photo save(Photo photo) {
         em.persist(photo);
-        em.flush();
         return photo;
     }
 
