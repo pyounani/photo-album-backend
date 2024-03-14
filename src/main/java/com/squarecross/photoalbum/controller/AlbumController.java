@@ -3,17 +3,13 @@ package com.squarecross.photoalbum.controller;
 import com.squarecross.photoalbum.code.ResponseCode;
 import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.dto.ResponseDto;
-import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
 import com.squarecross.photoalbum.service.AlbumService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

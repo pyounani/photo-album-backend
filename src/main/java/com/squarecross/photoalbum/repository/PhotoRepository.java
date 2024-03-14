@@ -1,6 +1,5 @@
 package com.squarecross.photoalbum.repository;
 
-import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
