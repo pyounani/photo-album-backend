@@ -5,6 +5,7 @@ import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
+import com.squarecross.photoalbum.mapper.AlbumMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -102,11 +103,11 @@ class AlbumServiceTest {
 
         List<Album> albumList = albumRepository.findAll();
 
-        Album album = new Album();
-        album.setName("name");
-        Long albumId = albumRepository.save(album);
+        AlbumDto albumDto = new AlbumDto();
+        albumDto.setAlbumName("name");
+        AlbumDto findAlbumDto = albumService.createAlbum(albumDto);
 
-        albumService.deleteAlbum(albumId);
+        albumService.deleteAlbum(findAlbumDto.getAlbumId());
 
         List<Album> deleteAlbumList = albumRepository.findAll();
 

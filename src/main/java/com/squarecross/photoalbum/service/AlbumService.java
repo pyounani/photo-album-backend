@@ -93,7 +93,7 @@ public class AlbumService {
 
                 Files.deleteIfExists(path); // 앨범을 삭제합니다.
             } else {
-                log.error("디렉터리가 존재하지 않습니다: {}", path);
+                log.warn("디렉터리가 존재하지 않습니다: {}", path);
             }
         } catch (Exception e) {
             log.error("앨범 삭제 도중 예상치 못한 예외가 발생했습니다: {}", e.getMessage());
