@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +24,7 @@ public class AlbumRepository {
     // 삭제
     public void delete(Long id) {
         Album findAlbum = em.find(Album.class, id);
-        if(findAlbum != null) {
+        if (findAlbum != null) {
             em.remove(findAlbum);
         }
     }
@@ -38,6 +39,20 @@ public class AlbumRepository {
     public List<Album> findAll() {
         return em.createQuery("select a from Album a", Album.class)
                 .getResultList();
+    }
+
+    public List<Album> findByAlbumNameContainingOrderByCreatedAtDesc(String keyword) {
+        String jpql = "SELECT a FROM Album a WHERE LOWER(a.name) LIKE LOWER(:keyword) ORDER BY a.createdAt DESC";
+        TypedQuery<Album> query = em.createQuery(jpql, Album.class);
+        query.setParameter("keyword", "%" + keyword.toLowerCase() + "%");
+        return query.getResultList();
+    }
+
+    public List<Album> findByAlbumNameContainingOrderByAlbumNameAsc(String keyword) {
+        String jpql = "SELECT a FROM Album a WHERE LOWER(a.name) LIKE LOWER(:keyword) ORDER BY a.name ASC";
+        TypedQuery<Album> query = em.createQuery(jpql, Album.class);
+        query.setParameter("keyword", "%" + keyword.toLowerCase() + "%");
+        return query.getResultList();
     }
 
 }

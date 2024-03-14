@@ -11,6 +11,7 @@ public enum ResponseCode {
     SUCCESS_POST_ALBUM(HttpStatus.OK, "앨범을 성공적으로 생성했습니다."),
     SUCCESS_PUT_ALBUM(HttpStatus.OK, "앨범명을 성공적으로 변경했습니다."),
     SUCCESS_DELETE_ALBUM(HttpStatus.OK, "앨범을 성공적으로 삭제했습니다."),
+    SUCCESS_GET_ALBUM_LIST(HttpStatus.OK, "앨범 목록을 성공적으로 가져왔습니다."),
     ;
 
     private final HttpStatus status;

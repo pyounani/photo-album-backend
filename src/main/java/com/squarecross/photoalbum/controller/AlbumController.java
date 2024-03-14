@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,7 +50,7 @@ public class AlbumController {
 
     @PutMapping("/{albumId}")
     public ResponseEntity<ResponseDto> updateAlbum(@PathVariable("albumId") Long albumId,
-                                                @RequestBody AlbumDto albumDto) {
+                                                   @RequestBody AlbumDto albumDto) {
         AlbumDto res = albumService.changeAlbumName(albumId, albumDto);
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_PUT_ALBUM.getStatus().value())
@@ -62,6 +63,15 @@ public class AlbumController {
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_ALBUM.getStatus().value())
                 .body(new ResponseDto(ResponseCode.SUCCESS_DELETE_ALBUM, null));
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseDto> getAlbumList(@RequestParam(value = "keyword", required = false, defaultValue = "") final String keyword,
+                                                    @RequestParam(value = "sort", required = false, defaultValue = "byDate") final String sort) {
+        List<AlbumDto> res = albumService.getAlbumList(keyword, sort);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_GET_ALBUM_LIST.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_GET_ALBUM_LIST, res));
     }
 
 }

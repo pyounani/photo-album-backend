@@ -3,8 +3,10 @@ package com.squarecross.photoalbum.service;
 import com.squarecross.photoalbum.Constants;
 import com.squarecross.photoalbum.code.ErrorCode;
 import com.squarecross.photoalbum.domain.Album;
+import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
+import com.squarecross.photoalbum.exception.UnknownSortingException;
 import com.squarecross.photoalbum.mapper.AlbumMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
@@ -18,7 +20,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -39,7 +44,7 @@ public class AlbumService {
     @Transactional(readOnly = true)
     public AlbumDto getAlbum(Long albumId) {
         Optional<Album> findAlbum = albumRepository.findOne(albumId);
-        if(findAlbum.isEmpty()) {
+        if (findAlbum.isEmpty()) {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
         AlbumDto albumDto = AlbumMapper.convertToDto(findAlbum.get());
@@ -56,13 +61,32 @@ public class AlbumService {
         return AlbumMapper.convertToDto(findAlbum.get());
     }
 
-    public void deleteAlbum(Long albumId) throws IOException{
+    public void deleteAlbum(Long albumId) throws IOException {
         Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if (findAlbum.isEmpty()) {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
         cleanupAlbumDirectories(albumId);
         albumRepository.delete(albumId);
+    }
+
+    public List<AlbumDto> getAlbumList(String keyword, String sort) {
+        List<Album> albums;
+        if (sort.equals("byName")) {
+            albums = albumRepository.findByAlbumNameContainingOrderByAlbumNameAsc(keyword);
+        } else if (sort.equals("byDate")) {
+            albums = albumRepository.findByAlbumNameContainingOrderByCreatedAtDesc(keyword);
+        } else {
+            throw new UnknownSortingException(ErrorCode.SORT_NOT_FOUND);
+        }
+
+        List<AlbumDto> albumDtos = AlbumMapper.convertToDtoList(albums);
+        for (AlbumDto albumDto : albumDtos) {
+            List<Photo> top4 = photoRepository.findTop4ByAlbum_AlbumIdOrderByUploadedAtDesc(albumDto.getAlbumId());
+            albumDto.setThumbUrls(top4.stream().map(Photo::getThumbUrl).map(c -> Constants.PATH_PREFIX + c).collect(Collectors.toList()));
+        }
+
+        return albumDtos;
     }
 
     private void cleanupAlbumDirectories(Long albumId) throws IOException {

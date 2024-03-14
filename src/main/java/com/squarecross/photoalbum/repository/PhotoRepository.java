@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,5 +62,13 @@ public class PhotoRepository {
         if(findPhoto != null) {
             em.remove(findPhoto);
         }
+    }
+
+    public List<Photo> findTop4ByAlbum_AlbumIdOrderByUploadedAtDesc(Long albumId) {
+        String jpql = "SELECT p FROM Photo p WHERE p.album.id = :albumId ORDER BY p.uploadedAt DESC";
+        TypedQuery<Photo> query = em.createQuery(jpql, Photo.class);
+        query.setParameter("albumId", albumId);
+        query.setMaxResults(4);
+        return query.getResultList();
     }
 }
