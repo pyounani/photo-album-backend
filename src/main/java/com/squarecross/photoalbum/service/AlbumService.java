@@ -9,6 +9,7 @@ import com.squarecross.photoalbum.mapper.AlbumMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.After;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class AlbumService {
 
     private final AlbumRepository albumRepository;
@@ -80,21 +82,21 @@ public class AlbumService {
                 File[] folder_list = path.toFile().listFiles(); // 앨범 내의 사진들을 가져옵니다.
 
                 if (folder_list != null) {
-                    for (int j = 0; j < folder_list.length; j++) {
-                        if (folder_list[j].isDirectory()) {
-                            deleteDirectory(folder_list[j].toPath()); // 하위 디렉터리를 재귀적으로 삭제합니다.
+                    for (File file : folder_list) {
+                        if (file.isDirectory()) {
+                            deleteDirectory(file.toPath()); // 하위 디렉터리를 재귀적으로 삭제합니다.
                         } else {
-                            folder_list[j].delete(); // 파일을 삭제합니다.
+                            file.delete(); // 파일을 삭제합니다.
                         }
                     }
                 }
 
                 Files.deleteIfExists(path); // 앨범을 삭제합니다.
             } else {
-                System.out.println("잘못된 경로입니다: " + path.toString());
+                log.error("디렉터리가 존재하지 않습니다: {}", path);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("앨범 삭제 도중 예상치 못한 예외가 발생했습니다: {}", e.getMessage());
         }
     }
 
