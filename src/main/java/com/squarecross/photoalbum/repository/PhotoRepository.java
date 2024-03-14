@@ -1,6 +1,5 @@
 package com.squarecross.photoalbum.repository;
 
-import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -18,7 +17,6 @@ public class PhotoRepository {
 
     public Photo save(Photo photo) {
         em.persist(photo);
-        em.flush();
         return photo;
     }
 

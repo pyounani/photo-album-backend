@@ -3,17 +3,13 @@ package com.squarecross.photoalbum.controller;
 import com.squarecross.photoalbum.code.ResponseCode;
 import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.dto.ResponseDto;
-import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
 import com.squarecross.photoalbum.service.AlbumService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,16 +48,20 @@ public class AlbumController {
     }
 
     @PutMapping("/{albumId}")
-    public ResponseEntity<AlbumDto> updateAlbum(@PathVariable("albumId") Long albumId,
+    public ResponseEntity<ResponseDto> updateAlbum(@PathVariable("albumId") Long albumId,
                                                 @RequestBody AlbumDto albumDto) {
         AlbumDto res = albumService.changeAlbumName(albumId, albumDto);
-        return new ResponseEntity<>(res, HttpStatus.OK);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_PUT_ALBUM.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_PUT_ALBUM, res));
     }
 
     @DeleteMapping("/{albumId}")
-    public ResponseEntity<Void> deleteAlbum(@PathVariable("albumId") Long albumId) throws IOException {
+    public ResponseEntity<ResponseDto> deleteAlbum(@PathVariable("albumId") Long albumId) throws IOException {
         albumService.deleteAlbum(albumId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_DELETE_ALBUM.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_DELETE_ALBUM, null));
     }
 
 }
