@@ -61,9 +61,11 @@ public class AlbumController {
     }
 
     @DeleteMapping("/{albumId}")
-    public ResponseEntity<Void> deleteAlbum(@PathVariable("albumId") Long albumId) throws IOException {
+    public ResponseEntity<ResponseDto> deleteAlbum(@PathVariable("albumId") Long albumId) throws IOException {
         albumService.deleteAlbum(albumId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_DELETE_ALBUM.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_DELETE_ALBUM, null));
     }
 
 }

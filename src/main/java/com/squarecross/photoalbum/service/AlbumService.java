@@ -58,6 +58,10 @@ public class AlbumService {
     }
 
     public void deleteAlbum(Long albumId) throws IOException{
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
+        if (findAlbum.isEmpty()) {
+            throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
+        }
         cleanupAlbumDirectories(albumId);
         albumRepository.delete(albumId);
     }
@@ -73,28 +77,27 @@ public class AlbumService {
     private void deleteDirectory(Path path) {
         try {
             if (Files.exists(path)) {
-                File[] folder_list = path.toFile().listFiles(); // Get the list of files
+                File[] folder_list = path.toFile().listFiles(); // 앨범 내의 사진들을 가져옵니다.
 
                 if (folder_list != null) {
                     for (int j = 0; j < folder_list.length; j++) {
                         if (folder_list[j].isDirectory()) {
-                            deleteDirectory(folder_list[j].toPath()); // Recursively delete subdirectories
+                            deleteDirectory(folder_list[j].toPath()); // 하위 디렉터리를 재귀적으로 삭제합니다.
                         } else {
-                            folder_list[j].delete(); // Delete files
-                            System.out.println("File deleted: " + folder_list[j].getName());
+                            folder_list[j].delete(); // 파일을 삭제합니다.
                         }
                     }
                 }
 
-                Files.deleteIfExists(path); // Delete the directory itself
-                System.out.println("Folder deleted: " + path.toString());
+                Files.deleteIfExists(path); // 앨범을 삭제합니다.
             } else {
-                System.out.println("Directory does not exist: " + path.toString());
+                System.out.println("잘못된 경로입니다: " + path.toString());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     private void creteAlbumDirectories(Album album) throws IOException {
         Files.createDirectories(Paths.get(Constants.PATH_PREFIX + "/photos/original/" + album.getId()));
