@@ -114,6 +114,37 @@ class AlbumServiceTest {
         assertEquals(albumList.size(), deleteAlbumList.size());
     }
 
+    @Test
+    public void 앨범_목록_불러오기() throws Exception {
+        Album album1 = new Album();
+        album1.setName("aaaa");
+
+        Album album2 = new Album();
+        album2.setName("aaab");
+
+        albumRepository.save(album1);
+        albumRepository.save(album2);
+
+        Photo photo = new Photo();
+        photo.setThumbUrl("/url");
+        photo.setAlbum(album1);
+        photoRepository.save(photo);
+
+        List<AlbumDto> albums;
+        albums = albumService.getAlbumList("aaa", "byName");
+
+        assertEquals("aaaa", albums.get(0).getAlbumName());
+        assertEquals("aaab", albums.get(1).getAlbumName());
+        assertEquals("C:/youna/photo-album-backend/url", albums.get(0).getThumbUrls().get(0));
+        assertEquals(2, albums.size());
+
+        albums = albumService.getAlbumList("aaa", "byDate");
+        assertEquals("aaab", albums.get(0).getAlbumName());
+        assertEquals("aaaa", albums.get(1).getAlbumName());
+        assertEquals(2, albums.size());
+
+    }
+
     @AfterEach
     private void cleanupAlbumDirectories() throws IOException {
         if(albumId != null) {
