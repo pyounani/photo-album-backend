@@ -23,4 +23,32 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.ALBUMID_NOT_FOUND));
     }
 
+    @ExceptionHandler(UnknownSortingException.class)
+    protected ResponseEntity<ErrorResponseDto> handleUnknownSortingException(final UnknownSortingException e) {
+        log.error("handleUnknownSortingException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.SORT_NOT_FOUND.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.SORT_NOT_FOUND));
+    }
+
+    /**
+     * Photo
+     */
+
+    @ExceptionHandler(PhotoIdNotFoundException.class)
+    protected ResponseEntity<ErrorResponseDto> handlePhotoIdNotFoundException(final PhotoIdNotFoundException e) {
+        log.error("handlePhotoIdNotFoundException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.PHOTOID_NOT_FOUND.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.PHOTOID_NOT_FOUND));
+    }
+
+    @ExceptionHandler(AlbumIdMismatchException.class)
+    protected ResponseEntity<ErrorResponseDto> handleAlbumIdMismatchException(final AlbumIdMismatchException e) {
+        log.error("handleAlbumIdMismatchException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.ALBUMID_MISMATCH.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.ALBUMID_MISMATCH));
+    }
+
 }

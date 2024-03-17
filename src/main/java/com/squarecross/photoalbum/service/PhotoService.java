@@ -1,10 +1,13 @@
 package com.squarecross.photoalbum.service;
 
 import com.squarecross.photoalbum.Constants;
+import com.squarecross.photoalbum.code.ErrorCode;
 import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
+import com.squarecross.photoalbum.exception.AlbumIdMismatchException;
+import com.squarecross.photoalbum.exception.PhotoIdNotFoundException;
 import com.squarecross.photoalbum.mapper.PhotoMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
@@ -40,12 +43,13 @@ public class PhotoService {
     private final String thumb_path = Constants.PATH_PREFIX + "/photos/thumb";
 
     @Transactional(readOnly = true)
-    public PhotoDetailsDto getPhoto(Long photoId) {
-        // 사진 정보를 찾아오기
+    public PhotoDetailsDto getPhoto(Long albumId, Long photoId) {
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
         if (findPhoto.isEmpty()) {
-            // 사진이 없으면 EntityNotFoundException 발생
-            throw new EntityNotFoundException();
+            throw new PhotoIdNotFoundException(ErrorCode.PHOTOID_NOT_FOUND);
+        }
+        if (findPhoto.get().getAlbum().getId() != albumId) {
+            throw new AlbumIdMismatchException(ErrorCode.ALBUMID_MISMATCH);
         }
         // DTO로 변환하여 반환
         return PhotoMapper.convertToDetailsDto(findPhoto.get());

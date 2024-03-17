@@ -1,8 +1,10 @@
 package com.squarecross.photoalbum.controller;
 
+import com.squarecross.photoalbum.code.ResponseCode;
 import com.squarecross.photoalbum.dto.ChangeAlbumRequestDto;
 import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
+import com.squarecross.photoalbum.dto.ResponseDto;
 import com.squarecross.photoalbum.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
@@ -27,10 +29,13 @@ public class PhotoController {
     private final PhotoService photoService;
 
     @GetMapping("/{photoId}")
-    public ResponseEntity<PhotoDetailsDto> getPhotoInfo(@PathVariable("albumId") Long albumId,
+    public ResponseEntity<ResponseDto> getPhotoInfo(@PathVariable("albumId") Long albumId,
                                                         @PathVariable("photoId") Long photoId) {
-        PhotoDetailsDto res = photoService.getPhoto(photoId);
-        return new ResponseEntity<>(res, HttpStatus.OK);
+        PhotoDetailsDto res = photoService.getPhoto(albumId, photoId);
+
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_GET_PHOTO.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_GET_PHOTO, res));
     }
 
     @PostMapping
