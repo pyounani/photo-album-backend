@@ -1,0 +1,37 @@
+#[타입] 제목 입력
+
+# 본문은 아래에 작성  
+
+# 꼬릿말은 아래에 작성: ex) Github issue #23  
+
+# --- COMMIT END ---  
+#   <타입> 리스트  
+#   Feat        : 새로운 기능 추가
+#   Fix         : 버그 수정 
+#   Refactor    : 리팩토링(코드 구조 재조정)  
+#   Design      : UI 디자인 변경 
+#   Docs        : 문서 수정
+#   Rename      : 파일 이름 변경
+#   Remove      : 파일 삭제  
+#   Test        : 테스트 추가, 테스트 리팩토링((production code에는 변경이 없음)
+#   Style       : Formatting, 세미콜론 추가 (code에는 변경이 없음) 
+#   Chore       : Build task를 업데이트, package manager 설정 (production code에는 변경이 없음) 
+#   Comment     : 주석을 추가하거나 삭제했을때
+#   !Hotfix      : 급하게 치명적인 버그를 고쳐야하는 경우
+#   !Breakingchange   : 커다란 API 변경의 경우
+  
+# ------------------  
+#   제목은 명령문으로  
+#   제목 끝에 마침표(.) 금지  
+#   제목과 본문을 빈 행으로 구분합니다.   
+#   제목은 50글자 이내로 제한합니다. 
+#   본문은 "어떻게" 보다 "무엇을", "왜"를 설명한다.  
+#   본문에 여러줄의 메시지를 작성할 땐 "-"로 구분  
+# ------------------  
+#   <꼬리말>  
+#   필수가 아닌 optional  
+#   Fixes        :이슈 수정중 (아직 해결되지 않은 경우)  
+#   Resolves     : 이슈 해결했을 때 사용  
+#   Ref          : 참고할 이슈가 있을 때 사용  
+#   Related to   : 해당 커밋에 관련된 이슈번호 (아직 해결되지 않은 경우)  
+#   ex) Fixes: #47 Related to: #32, #21  

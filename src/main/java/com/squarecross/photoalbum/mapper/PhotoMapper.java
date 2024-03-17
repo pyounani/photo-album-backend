@@ -5,7 +5,6 @@ import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
 
 public class PhotoMapper {
-
     public static PhotoDto convertToDto(Photo photo) {
         PhotoDto photoDto = new PhotoDto();
         photoDto.setPhotoId(photo.getId());

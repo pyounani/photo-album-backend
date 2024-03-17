@@ -10,11 +10,9 @@ import java.util.List;
 @Getter
 @Setter
 public class AlbumDto {
-
     private Long albumId;
     private String albumName;
     private List<String> thumbUrls;
     private LocalDateTime createdAt;
     private int count;
-
 }

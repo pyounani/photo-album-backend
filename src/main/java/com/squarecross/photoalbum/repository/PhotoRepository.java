@@ -21,7 +21,6 @@ public class PhotoRepository {
         return photo;
     }
 
-
     public int countAlbum(Long albumId) {
         try {
             Long count = em.createQuery("SELECT COUNT(p) FROM Photo p WHERE p.album.id = :albumId", Long.class)

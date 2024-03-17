@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class PhotoDetailsDto {
-
     private Long photoId;
     private String fileName;
     private String originalUrl;

@@ -103,8 +103,6 @@ public class PhotoController {
         if (!zipFile.delete()) {
             throw new IOException("임시 Zip 파일 생성 실패");
         }
-
-
     }
 
     private File createZipFile(Long[] photoIds) throws IOException {
@@ -116,7 +114,6 @@ public class PhotoController {
                 addPhotoToZip(photoId, zipOutputStream);
             }
         }
-
         return zipFile;
     }
 
