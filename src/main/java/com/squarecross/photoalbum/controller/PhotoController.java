@@ -39,16 +39,18 @@ public class PhotoController {
     }
 
     @PostMapping
-    public ResponseEntity<List<PhotoDto>> uploadPhotos(@PathVariable("albumId") Long albumId,
+    public ResponseEntity<ResponseDto> uploadPhotos(@PathVariable("albumId") Long albumId,
                                                        @RequestParam("photos") MultipartFile[] files) throws IOException {
 
-        List<PhotoDto> photos = new ArrayList<>();
+        List<PhotoDto> res = new ArrayList<>();
         for (MultipartFile file : files) {
             PhotoDto photoDto = photoService.savePhoto(file, albumId);
-            photos.add(photoDto);
+            res.add(photoDto);
         }
 
-        return new ResponseEntity<>(photos, HttpStatus.OK);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_POST_PHOTO.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_POST_PHOTO, res));
     }
 
     @GetMapping("/download")

@@ -16,9 +16,9 @@ public class PhotoRepository {
 
     private final EntityManager em;
 
-    public Photo save(Photo photo) {
+    public Long save(Photo photo) {
         em.persist(photo);
-        return photo;
+        return photo.getId();
     }
 
     public int countAlbum(Long albumId) {

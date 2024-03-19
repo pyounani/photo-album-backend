@@ -13,6 +13,7 @@ public enum ErrorCode {
      */
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     ALBUMID_MISMATCH(HttpStatus.BAD_REQUEST, "앨범 아이디에 사진 아이디가 존재하지 않습니다."),
+    ERROR_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "파일의 확장자가 존재하지 않습니다."),
 
     /**
      * 404 NOT_FOUND: 리소스를 찾을 수 없음
@@ -29,6 +30,7 @@ public enum ErrorCode {
     /**
      * 500 INTERNAL_SERVER_ERROR: 내부 서버 오류
      */
+    ERROR_CREATE_FILE(HttpStatus.INTERNAL_SERVER_ERROR, "파일 생성 중 알 수 없는 오류가 생겼습니다."),
 
     ;
 

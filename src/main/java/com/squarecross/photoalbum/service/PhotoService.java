@@ -6,8 +6,7 @@ import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
-import com.squarecross.photoalbum.exception.AlbumIdMismatchException;
-import com.squarecross.photoalbum.exception.PhotoIdNotFoundException;
+import com.squarecross.photoalbum.exception.*;
 import com.squarecross.photoalbum.mapper.PhotoMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
@@ -64,11 +63,9 @@ public class PhotoService {
     }
 
     public PhotoDto savePhoto(MultipartFile file, Long albumId) throws IOException {
-        // 앨범 정보 조회
         Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if (findAlbum == null) {
-            // 앨범이 없으면 EntityNotFoundException 발생
-            throw new EntityNotFoundException();
+            throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
 
         // 파일 정보 추출
@@ -88,10 +85,9 @@ public class PhotoService {
         photo.setThumbUrl("/photos/thumb/" + albumId + "/" + fileName);
         photo.setFileSize(fileSize);
         photo.setAlbum(findAlbum.get());
-        Photo createdPhoto = photoRepository.save(photo);
+        photoRepository.save(photo);
 
-        // 저장된 Photo를 DTO로 변환하여 반환
-        return PhotoMapper.convertToDto(createdPhoto);
+        return PhotoMapper.convertToDto(photo);
     }
 
     @Transactional(readOnly = true)
@@ -144,8 +140,7 @@ public class PhotoService {
         try (InputStream inputStream = file.getInputStream()) {
             Files.copy(inputStream, Paths.get(original_path + "/" + filePath));
         } catch (IOException e) {
-            // 파일 복사 중 에러 발생 시 RuntimeException 발생
-            throw new RuntimeException("Error copying file", e);
+            throw new OriginalFileCreationException(ErrorCode.ERROR_CREATE_FILE);
         }
 
         // 썸네일 생성 및 저장
@@ -154,13 +149,11 @@ public class PhotoService {
             File thumbFile = new File(thumb_path + "/" + filePath);
             String ext = StringUtils.getFilenameExtension(fileName);
             if (ext == null) {
-                // 파일 확장자가 null일 경우 IllegalArgumentException 발생
-                throw new IllegalArgumentException("File extension is null");
+                throw new FileExtensionMissingException(ErrorCode.ERROR_CREATE_FILE);
             }
             ImageIO.write(thumbImg, ext, thumbFile);
         } catch (Exception e) {
-            // 썸네일 생성 중 에러 발생 시 RuntimeException 발생
-            throw new RuntimeException("Error creating thumbnail", e);
+            throw new ThumbFileCreationException(ErrorCode.ERROR_CREATE_FILE);
         }
     }
 }

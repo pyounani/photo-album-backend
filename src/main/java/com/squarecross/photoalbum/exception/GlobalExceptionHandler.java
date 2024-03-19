@@ -51,4 +51,28 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.ALBUMID_MISMATCH));
     }
 
+    @ExceptionHandler(FileExtensionMissingException.class)
+    protected ResponseEntity<ErrorResponseDto> handleFileExtensionMissingException(final FileExtensionMissingException e) {
+        log.error("handleFileExtensionMissingException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.ERROR_FILE_EXTENSION.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.ERROR_FILE_EXTENSION));
+    }
+
+    @ExceptionHandler(OriginalFileCreationException.class)
+    protected ResponseEntity<ErrorResponseDto> handleOriginalFileCreationException(final OriginalFileCreationException e) {
+        log.error("handleOriginalFileCreationException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.ERROR_CREATE_FILE.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.ERROR_CREATE_FILE));
+    }
+
+    @ExceptionHandler(ThumbFileCreationException.class)
+    protected ResponseEntity<ErrorResponseDto> handleThumbFileCreationException(final ThumbFileCreationException e) {
+        log.error("handleThumbFileCreationException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.ERROR_CREATE_FILE.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.ERROR_CREATE_FILE));
+    }
+
 }
