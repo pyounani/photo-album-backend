@@ -75,13 +75,15 @@ public class PhotoController {
     }
 
     @PutMapping("/move")
-    public ResponseEntity<List<PhotoDto>> changeAlbumForPhoto(@RequestBody ChangeAlbumRequestDto changeAlbumDto) {
-        List<PhotoDto> photos = new ArrayList<>();
+    public ResponseEntity<ResponseDto> changeAlbumForPhoto(@RequestBody ChangeAlbumRequestDto changeAlbumDto) {
+        List<PhotoDto> res = new ArrayList<>();
         for(Long photoId : changeAlbumDto.getPhotoIds()) {
-            PhotoDto photoDto = photoService.changeAlbumForPhoto(changeAlbumDto.getToAlbumId(), photoId);
-            photos.add(photoDto);
+            PhotoDto photoDto = photoService.changeAlbumForPhoto(changeAlbumDto.getFromAlbumId(), changeAlbumDto.getToAlbumId(), photoId);
+            res.add(photoDto);
         }
-        return new ResponseEntity<>(photos, HttpStatus.OK);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_PUT_PHOTO.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_PUT_PHOTO, res));
     }
 
     private void downloadSinglePhoto(Long photoId, HttpServletResponse response) throws IOException {

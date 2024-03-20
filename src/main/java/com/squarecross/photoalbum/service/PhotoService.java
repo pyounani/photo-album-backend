@@ -11,6 +11,7 @@ import com.squarecross.photoalbum.mapper.PhotoMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class PhotoService {
 
     private final PhotoRepository photoRepository;
@@ -64,7 +66,7 @@ public class PhotoService {
 
     public PhotoDto savePhoto(MultipartFile file, Long albumId) throws IOException {
         Optional<Album> findAlbum = albumRepository.findOne(albumId);
-        if (findAlbum == null) {
+        if (findAlbum.isEmpty()) {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
 
@@ -102,16 +104,22 @@ public class PhotoService {
         return new File(Constants.PATH_PREFIX + findPhoto.get().getOriginalUrl());
     }
 
-    public PhotoDto changeAlbumForPhoto(Long albumId, Long photoId) {
+    public PhotoDto changeAlbumForPhoto(Long fromAlbumId, Long toAlbumId, Long photoId) {
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
         if (findPhoto.isEmpty()) {
             throw new EntityNotFoundException();
         }
-        Optional<Album> findAlbum = albumRepository.findOne(albumId);
-        if (findAlbum == null) {
-            throw new EntityNotFoundException();
+        // 원래 앨범 아이디
+        Optional<Album> fromAlbum = albumRepository.findOne(fromAlbumId);
+        if (fromAlbum.isEmpty()) {
+            throw new AlbumIdMismatchException(ErrorCode.ALBUMID_MISMATCH);
         }
-        findPhoto.get().setAlbum(findAlbum.get());
+        // 이동할려고 하는 앨범 아이디
+        Optional<Album> toAlbum = albumRepository.findOne(toAlbumId);
+        if (toAlbum.isEmpty()) {
+            throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
+        }
+        findPhoto.get().setAlbum(toAlbum.get());
         return PhotoMapper.convertToDto(findPhoto.get());
     }
 

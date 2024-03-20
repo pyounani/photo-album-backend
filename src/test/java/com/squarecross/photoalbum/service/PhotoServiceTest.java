@@ -97,7 +97,7 @@ class PhotoServiceTest {
 
         Album album1 = new Album();
         album1.setName("album1");
-        albumRepository.save(album1);
+        Long fromAlbumId = albumRepository.save(album1);
 
         Album album2 = new Album();
         album2.setName("album2");
@@ -107,7 +107,7 @@ class PhotoServiceTest {
         photo1.setAlbum(album1);
         Long photoId = photoRepository.save(photo1);
 
-        photoService.changeAlbumForPhoto(newAlbumId, photoId);
+        photoService.changeAlbumForPhoto(fromAlbumId, newAlbumId, photoId);
 
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
 
