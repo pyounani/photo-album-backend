@@ -3,6 +3,7 @@ package com.squarecross.photoalbum.domain;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "photo", schema = "photo_album", uniqueConstraints = {@UniqueConstraint(columnNames = "photo_id")})
 @Getter
 @Setter
+@EntityListeners(AuditingEntityListener.class)
 public class Photo {
 
     @Id
