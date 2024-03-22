@@ -31,6 +31,7 @@ public enum ErrorCode {
      * 500 INTERNAL_SERVER_ERROR: 내부 서버 오류
      */
     ERROR_CREATE_FILE(HttpStatus.INTERNAL_SERVER_ERROR, "파일 생성 중 알 수 없는 오류가 생겼습니다."),
+    ERROR_DOWNLOAD_FILE(HttpStatus.INTERNAL_SERVER_ERROR, "파일 다운로드 중 알 수 없는 오류가 생겼습니다."),
 
     ;
 

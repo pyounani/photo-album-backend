@@ -75,4 +75,11 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDto(ErrorCode.ERROR_CREATE_FILE));
     }
 
+    @ExceptionHandler(DownloadPhotosIOException.class)
+    protected ResponseEntity<ErrorResponseDto> handleDownloadPhotosIOException(final DownloadPhotosIOException e) {
+        log.error("handleDownloadPhotosIOException : {}", e.getErrorCode().getMessage());
+        return ResponseEntity
+                .status(ErrorCode.ERROR_DOWNLOAD_FILE.getStatus().value())
+                .body(new ErrorResponseDto(ErrorCode.ERROR_DOWNLOAD_FILE));
+    }
 }

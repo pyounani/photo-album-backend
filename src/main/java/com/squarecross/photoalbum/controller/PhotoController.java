@@ -1,10 +1,12 @@
 package com.squarecross.photoalbum.controller;
 
+import com.squarecross.photoalbum.code.ErrorCode;
 import com.squarecross.photoalbum.code.ResponseCode;
 import com.squarecross.photoalbum.dto.ChangeAlbumRequestDto;
 import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
 import com.squarecross.photoalbum.dto.ResponseDto;
+import com.squarecross.photoalbum.exception.DownloadPhotosIOException;
 import com.squarecross.photoalbum.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
@@ -64,7 +66,7 @@ public class PhotoController {
                 downloadPhotosAsZip(photoIds, response);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error processing download request", e);
+            throw new DownloadPhotosIOException(ErrorCode.ERROR_DOWNLOAD_FILE);
         }
     }
 
