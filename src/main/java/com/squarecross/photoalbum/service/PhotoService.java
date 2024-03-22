@@ -98,7 +98,7 @@ public class PhotoService {
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
         if (findPhoto.isEmpty()) {
             // 사진이 없으면 EntityNotFoundException 발생
-            throw new EntityNotFoundException();
+            throw new PhotoIdNotFoundException(ErrorCode.PHOTOID_NOT_FOUND);
         }
         // 파일 경로 생성 및 반환
         return new File(Constants.PATH_PREFIX + findPhoto.get().getOriginalUrl());
