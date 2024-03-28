@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
@@ -122,6 +123,41 @@ public class PhotoService {
         findPhoto.get().setAlbum(toAlbum.get());
         return PhotoMapper.convertToDto(findPhoto.get());
     }
+
+    public List<PhotoDto> deletePhoto(Long albumId, List<Long> photoIds) {
+        for (Long photoId : photoIds) {
+            Optional<Photo> findPhoto = photoRepository.findOne(photoId);
+            if (findPhoto.isEmpty()) {
+                throw new PhotoIdNotFoundException(ErrorCode.PHOTOID_NOT_FOUND);
+            }
+            // 파일에서 삭제
+            String originalFileName = findPhoto.get().getOriginalUrl();
+            String thumbFileName = findPhoto.get().getThumbUrl();
+            cleanupPhoto(originalFileName, thumbFileName);
+
+            // DB 삭제
+            photoRepository.delete(photoId);
+        }
+
+        // 남은 목록 반환
+        List<Photo> findPhotos = photoRepository.findByAlbum(albumId);
+        return findPhotos.stream()
+                .map(PhotoMapper::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    private void cleanupPhoto(String originalFileName, String thumbFileName) {
+        Path originalPath = Paths.get(Constants.PATH_PREFIX + originalFileName);
+        Path thumbPath = Paths.get(Constants.PATH_PREFIX + thumbFileName);
+        log.debug("originalPath: {}", originalPath);
+        log.debug("thumbPath: {}", thumbPath);
+        try {
+        Files.deleteIfExists(originalPath);
+        Files.deleteIfExists(thumbPath);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
 
     @Transactional(readOnly = true)
     private String getNextFileName(String fileName, Long albumId) {

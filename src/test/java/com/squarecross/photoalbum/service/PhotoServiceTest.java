@@ -8,19 +8,18 @@ import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
-import org.aspectj.lang.annotation.After;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -113,6 +112,48 @@ class PhotoServiceTest {
 
         assertEquals(newAlbumId, findPhoto.get().getAlbum().getId());
 
+    }
+
+    @Test
+    public void 앨범_삭제() throws IOException {
+        AlbumDto albumDto = new AlbumDto();
+        albumDto.setAlbumName("name");
+        AlbumDto findAlbumDto = albumService.createAlbum(albumDto);
+        albumId = findAlbumDto.getAlbumId();
+
+        MockMultipartFile multipartFile1 = makeImageFile();
+
+        PhotoDto photoDto1 = photoService.savePhoto(multipartFile1, albumId);
+
+        List<Long> photoIds = new ArrayList<>();
+        photoIds.add(photoDto1.getPhotoId());
+
+        List<PhotoDto> photos = photoService.deletePhoto(albumId, photoIds);
+
+        assertEquals(0, photos.size());
+        assertFalse(photos.contains(photoDto1));
+    }
+
+    @Test
+    public void 일부_앨범_삭제() throws IOException{
+        AlbumDto albumDto = new AlbumDto();
+        albumDto.setAlbumName("name");
+        AlbumDto findAlbumDto = albumService.createAlbum(albumDto);
+        albumId = findAlbumDto.getAlbumId();
+
+        MockMultipartFile multipartFile1 = makeImageFile();
+        PhotoDto photoDto1 = photoService.savePhoto(multipartFile1, albumId);
+        photoId = photoDto1.getPhotoId();
+
+        MockMultipartFile multipartFile2 = makeImageFile();
+        PhotoDto photoDto2 = photoService.savePhoto(multipartFile2, albumId);
+
+        List<Long> photoIds = new ArrayList<>();
+        photoIds.add(photoDto2.getPhotoId());
+
+        List<PhotoDto> photos = photoService.deletePhoto(albumId, photoIds);
+
+        assertEquals(1, photos.size());
     }
 
     @AfterEach

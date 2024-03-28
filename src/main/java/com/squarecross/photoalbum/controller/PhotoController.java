@@ -32,7 +32,7 @@ public class PhotoController {
 
     @GetMapping("/{photoId}")
     public ResponseEntity<ResponseDto> getPhotoInfo(@PathVariable("albumId") Long albumId,
-                                                        @PathVariable("photoId") Long photoId) {
+                                                    @PathVariable("photoId") Long photoId) {
         PhotoDetailsDto res = photoService.getPhoto(albumId, photoId);
 
         return ResponseEntity
@@ -42,7 +42,7 @@ public class PhotoController {
 
     @PostMapping
     public ResponseEntity<ResponseDto> uploadPhotos(@PathVariable("albumId") Long albumId,
-                                                       @RequestParam("photos") MultipartFile[] files) throws IOException {
+                                                    @RequestParam("photos") MultipartFile[] files) throws IOException {
 
         List<PhotoDto> res = new ArrayList<>();
         for (MultipartFile file : files) {
@@ -79,13 +79,22 @@ public class PhotoController {
     @PutMapping("/move")
     public ResponseEntity<ResponseDto> changeAlbumForPhoto(@RequestBody ChangeAlbumRequestDto changeAlbumDto) {
         List<PhotoDto> res = new ArrayList<>();
-        for(Long photoId : changeAlbumDto.getPhotoIds()) {
+        for (Long photoId : changeAlbumDto.getPhotoIds()) {
             PhotoDto photoDto = photoService.changeAlbumForPhoto(changeAlbumDto.getFromAlbumId(), changeAlbumDto.getToAlbumId(), photoId);
             res.add(photoDto);
         }
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_PUT_PHOTO.getStatus().value())
                 .body(new ResponseDto(ResponseCode.SUCCESS_PUT_PHOTO, res));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ResponseDto> deletePhoto(@PathVariable("albumId") Long albumId,
+                                                   @RequestBody List<Long> photoIds) {
+        List<PhotoDto> res = photoService.deletePhoto(albumId, photoIds);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_DELETE_PHOTO.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_DELETE_PHOTO, res));
     }
 
     private void downloadSinglePhoto(Long photoId, HttpServletResponse response) throws IOException {
