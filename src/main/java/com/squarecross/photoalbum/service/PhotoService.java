@@ -1,14 +1,17 @@
 package com.squarecross.photoalbum.service;
 
 import com.squarecross.photoalbum.Constants;
+import com.squarecross.photoalbum.code.ErrorCode;
 import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
+import com.squarecross.photoalbum.exception.*;
 import com.squarecross.photoalbum.mapper.PhotoMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +34,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class PhotoService {
 
     private final PhotoRepository photoRepository;
@@ -40,12 +45,13 @@ public class PhotoService {
     private final String thumb_path = Constants.PATH_PREFIX + "/photos/thumb";
 
     @Transactional(readOnly = true)
-    public PhotoDetailsDto getPhoto(Long photoId) {
-        // 사진 정보를 찾아오기
+    public PhotoDetailsDto getPhoto(Long albumId, Long photoId) {
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
         if (findPhoto.isEmpty()) {
-            // 사진이 없으면 EntityNotFoundException 발생
-            throw new EntityNotFoundException();
+            throw new PhotoIdNotFoundException(ErrorCode.PHOTOID_NOT_FOUND);
+        }
+        if (findPhoto.get().getAlbum().getId() != albumId) {
+            throw new AlbumIdMismatchException(ErrorCode.ALBUMID_MISMATCH);
         }
         // DTO로 변환하여 반환
         return PhotoMapper.convertToDetailsDto(findPhoto.get());
@@ -60,11 +66,9 @@ public class PhotoService {
     }
 
     public PhotoDto savePhoto(MultipartFile file, Long albumId) throws IOException {
-        // 앨범 정보 조회
         Optional<Album> findAlbum = albumRepository.findOne(albumId);
-        if (findAlbum == null) {
-            // 앨범이 없으면 EntityNotFoundException 발생
-            throw new EntityNotFoundException();
+        if (findAlbum.isEmpty()) {
+            throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
 
         // 파일 정보 추출
@@ -84,10 +88,9 @@ public class PhotoService {
         photo.setThumbUrl("/photos/thumb/" + albumId + "/" + fileName);
         photo.setFileSize(fileSize);
         photo.setAlbum(findAlbum.get());
-        Photo createdPhoto = photoRepository.save(photo);
+        photoRepository.save(photo);
 
-        // 저장된 Photo를 DTO로 변환하여 반환
-        return PhotoMapper.convertToDto(createdPhoto);
+        return PhotoMapper.convertToDto(photo);
     }
 
     @Transactional(readOnly = true)
@@ -96,24 +99,65 @@ public class PhotoService {
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
         if (findPhoto.isEmpty()) {
             // 사진이 없으면 EntityNotFoundException 발생
-            throw new EntityNotFoundException();
+            throw new PhotoIdNotFoundException(ErrorCode.PHOTOID_NOT_FOUND);
         }
         // 파일 경로 생성 및 반환
         return new File(Constants.PATH_PREFIX + findPhoto.get().getOriginalUrl());
     }
 
-    public PhotoDto changeAlbumForPhoto(Long albumId, Long photoId) {
+    public PhotoDto changeAlbumForPhoto(Long fromAlbumId, Long toAlbumId, Long photoId) {
         Optional<Photo> findPhoto = photoRepository.findOne(photoId);
         if (findPhoto.isEmpty()) {
             throw new EntityNotFoundException();
         }
-        Optional<Album> findAlbum = albumRepository.findOne(albumId);
-        if (findAlbum == null) {
-            throw new EntityNotFoundException();
+        // 원래 앨범 아이디
+        Optional<Album> fromAlbum = albumRepository.findOne(fromAlbumId);
+        if (fromAlbum.isEmpty()) {
+            throw new AlbumIdMismatchException(ErrorCode.ALBUMID_MISMATCH);
         }
-        findPhoto.get().setAlbum(findAlbum.get());
+        // 이동할려고 하는 앨범 아이디
+        Optional<Album> toAlbum = albumRepository.findOne(toAlbumId);
+        if (toAlbum.isEmpty()) {
+            throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
+        }
+        findPhoto.get().setAlbum(toAlbum.get());
         return PhotoMapper.convertToDto(findPhoto.get());
     }
+
+    public List<PhotoDto> deletePhoto(Long albumId, List<Long> photoIds) {
+        for (Long photoId : photoIds) {
+            Optional<Photo> findPhoto = photoRepository.findOne(photoId);
+            if (findPhoto.isEmpty()) {
+                throw new PhotoIdNotFoundException(ErrorCode.PHOTOID_NOT_FOUND);
+            }
+            // 파일에서 삭제
+            String originalFileName = findPhoto.get().getOriginalUrl();
+            String thumbFileName = findPhoto.get().getThumbUrl();
+            cleanupPhoto(originalFileName, thumbFileName);
+
+            // DB 삭제
+            photoRepository.delete(photoId);
+        }
+
+        // 남은 목록 반환
+        List<Photo> findPhotos = photoRepository.findByAlbum(albumId);
+        return findPhotos.stream()
+                .map(PhotoMapper::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    private void cleanupPhoto(String originalFileName, String thumbFileName) {
+        Path originalPath = Paths.get(Constants.PATH_PREFIX + originalFileName);
+        Path thumbPath = Paths.get(Constants.PATH_PREFIX + thumbFileName);
+        log.debug("originalPath: {}", originalPath);
+        log.debug("thumbPath: {}", thumbPath);
+        try {
+        Files.deleteIfExists(originalPath);
+        Files.deleteIfExists(thumbPath);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
 
     @Transactional(readOnly = true)
     private String getNextFileName(String fileName, Long albumId) {
@@ -140,8 +184,7 @@ public class PhotoService {
         try (InputStream inputStream = file.getInputStream()) {
             Files.copy(inputStream, Paths.get(original_path + "/" + filePath));
         } catch (IOException e) {
-            // 파일 복사 중 에러 발생 시 RuntimeException 발생
-            throw new RuntimeException("Error copying file", e);
+            throw new OriginalFileCreationException(ErrorCode.ERROR_CREATE_FILE);
         }
 
         // 썸네일 생성 및 저장
@@ -150,13 +193,11 @@ public class PhotoService {
             File thumbFile = new File(thumb_path + "/" + filePath);
             String ext = StringUtils.getFilenameExtension(fileName);
             if (ext == null) {
-                // 파일 확장자가 null일 경우 IllegalArgumentException 발생
-                throw new IllegalArgumentException("File extension is null");
+                throw new FileExtensionMissingException(ErrorCode.ERROR_CREATE_FILE);
             }
             ImageIO.write(thumbImg, ext, thumbFile);
         } catch (Exception e) {
-            // 썸네일 생성 중 에러 발생 시 RuntimeException 발생
-            throw new RuntimeException("Error creating thumbnail", e);
+            throw new ThumbFileCreationException(ErrorCode.ERROR_CREATE_FILE);
         }
     }
 }

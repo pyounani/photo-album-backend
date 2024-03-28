@@ -1,8 +1,12 @@
 package com.squarecross.photoalbum.controller;
 
+import com.squarecross.photoalbum.code.ErrorCode;
+import com.squarecross.photoalbum.code.ResponseCode;
 import com.squarecross.photoalbum.dto.ChangeAlbumRequestDto;
 import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
+import com.squarecross.photoalbum.dto.ResponseDto;
+import com.squarecross.photoalbum.exception.DownloadPhotosIOException;
 import com.squarecross.photoalbum.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
@@ -27,23 +31,28 @@ public class PhotoController {
     private final PhotoService photoService;
 
     @GetMapping("/{photoId}")
-    public ResponseEntity<PhotoDetailsDto> getPhotoInfo(@PathVariable("albumId") Long albumId,
-                                                        @PathVariable("photoId") Long photoId) {
-        PhotoDetailsDto res = photoService.getPhoto(photoId);
-        return new ResponseEntity<>(res, HttpStatus.OK);
+    public ResponseEntity<ResponseDto> getPhotoInfo(@PathVariable("albumId") Long albumId,
+                                                    @PathVariable("photoId") Long photoId) {
+        PhotoDetailsDto res = photoService.getPhoto(albumId, photoId);
+
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_GET_PHOTO.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_GET_PHOTO, res));
     }
 
     @PostMapping
-    public ResponseEntity<List<PhotoDto>> uploadPhotos(@PathVariable("albumId") Long albumId,
-                                                       @RequestParam("photos") MultipartFile[] files) throws IOException {
+    public ResponseEntity<ResponseDto> uploadPhotos(@PathVariable("albumId") Long albumId,
+                                                    @RequestParam("photos") MultipartFile[] files) throws IOException {
 
-        List<PhotoDto> photos = new ArrayList<>();
+        List<PhotoDto> res = new ArrayList<>();
         for (MultipartFile file : files) {
             PhotoDto photoDto = photoService.savePhoto(file, albumId);
-            photos.add(photoDto);
+            res.add(photoDto);
         }
 
-        return new ResponseEntity<>(photos, HttpStatus.OK);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_POST_PHOTO.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_POST_PHOTO, res));
     }
 
     @GetMapping("/download")
@@ -57,7 +66,7 @@ public class PhotoController {
                 downloadPhotosAsZip(photoIds, response);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error processing download request", e);
+            throw new DownloadPhotosIOException(ErrorCode.ERROR_DOWNLOAD_FILE);
         }
     }
 
@@ -68,13 +77,24 @@ public class PhotoController {
     }
 
     @PutMapping("/move")
-    public ResponseEntity<List<PhotoDto>> changeAlbumForPhoto(@RequestBody ChangeAlbumRequestDto changeAlbumDto) {
-        List<PhotoDto> photos = new ArrayList<>();
-        for(Long photoId : changeAlbumDto.getPhotoIds()) {
-            PhotoDto photoDto = photoService.changeAlbumForPhoto(changeAlbumDto.getToAlbumId(), photoId);
-            photos.add(photoDto);
+    public ResponseEntity<ResponseDto> changeAlbumForPhoto(@RequestBody ChangeAlbumRequestDto changeAlbumDto) {
+        List<PhotoDto> res = new ArrayList<>();
+        for (Long photoId : changeAlbumDto.getPhotoIds()) {
+            PhotoDto photoDto = photoService.changeAlbumForPhoto(changeAlbumDto.getFromAlbumId(), changeAlbumDto.getToAlbumId(), photoId);
+            res.add(photoDto);
         }
-        return new ResponseEntity<>(photos, HttpStatus.OK);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_PUT_PHOTO.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_PUT_PHOTO, res));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ResponseDto> deletePhoto(@PathVariable("albumId") Long albumId,
+                                                   @RequestBody List<Long> photoIds) {
+        List<PhotoDto> res = photoService.deletePhoto(albumId, photoIds);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_DELETE_PHOTO.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_DELETE_PHOTO, res));
     }
 
     private void downloadSinglePhoto(Long photoId, HttpServletResponse response) throws IOException {

@@ -48,3 +48,5 @@ out/
 /src/main/java/com/squarecross/photoalbum/Constants.java
 
 photos
+
+/src/main/resources/static/image.JPG
