@@ -2,10 +2,7 @@ package com.squarecross.photoalbum.controller;
 
 import com.squarecross.photoalbum.code.ErrorCode;
 import com.squarecross.photoalbum.code.ResponseCode;
-import com.squarecross.photoalbum.dto.ChangeAlbumRequestDto;
-import com.squarecross.photoalbum.dto.PhotoDetailsDto;
-import com.squarecross.photoalbum.dto.PhotoDto;
-import com.squarecross.photoalbum.dto.ResponseDto;
+import com.squarecross.photoalbum.dto.*;
 import com.squarecross.photoalbum.exception.DownloadPhotosIOException;
 import com.squarecross.photoalbum.service.PhotoService;
 import lombok.RequiredArgsConstructor;
@@ -89,9 +86,8 @@ public class PhotoController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ResponseDto> deletePhoto(@PathVariable("albumId") Long albumId,
-                                                   @RequestBody List<Long> photoIds) {
-        List<PhotoDto> res = photoService.deletePhoto(albumId, photoIds);
+    public ResponseEntity<ResponseDto> deletePhoto(@RequestBody PhotosDto photosDto) {
+        List<PhotoDto> res = photoService.deletePhoto(photosDto.getAlbumId(), photosDto.getPhotoIds());
         return ResponseEntity
                 .status(ResponseCode.SUCCESS_DELETE_PHOTO.getStatus().value())
                 .body(new ResponseDto(ResponseCode.SUCCESS_DELETE_PHOTO, res));
