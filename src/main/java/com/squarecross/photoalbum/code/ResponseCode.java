@@ -23,6 +23,7 @@ public enum ResponseCode {
     SUCCESS_POST_PHOTO(HttpStatus.OK, "사진을 성공적으로 생성했습니다."),
     SUCCESS_PUT_PHOTO(HttpStatus.OK, "사진을 원하시는 앨범에 옮기기를 성공적으로 변경했습니다."),
     SUCCESS_DELETE_PHOTO(HttpStatus.OK, "사진을 성공적으로 삭제했습니다."),
+    SUCCESS_GET_PHOTO_LIST(HttpStatus.OK, "사진 목록을 성공적으로 가져왔습니다."),
     ;
 
     private final HttpStatus status;

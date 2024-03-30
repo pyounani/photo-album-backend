@@ -58,11 +58,17 @@ public class PhotoService {
     }
 
     @Transactional(readOnly = true)
-    public List<PhotoDto> getPhotoList(Long albumId) {
-        List<Photo> findPhotoList = photoRepository.findByAlbum(albumId);
-        return findPhotoList.stream()
-                .map(PhotoMapper::convertToDto)
-                .collect(Collectors.toList());
+    public List<PhotoDto> getPhotoList(Long albumId, String keyword, String sort) {
+        List<Photo> photos;
+        if(sort.equals("byName")) {
+            photos = photoRepository.findByPhotoNameContainingAndAlbumIdOrderByPhotoNameAsc(keyword, albumId);
+        } else if (sort.equals("byDate")) {
+            photos = photoRepository.findByPhotoNameContainingAndAlbumIdOrderByCreatedAtDesc(keyword, albumId);
+        } else {
+            throw new UnknownSortingException(ErrorCode.SORT_NOT_FOUND);
+        }
+
+        return PhotoMapper.convertToDtoList(photos);
     }
 
     public PhotoDto savePhoto(MultipartFile file, Long albumId) throws IOException {

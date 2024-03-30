@@ -1,5 +1,6 @@
 package com.squarecross.photoalbum.repository;
 
+import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -70,4 +71,22 @@ public class PhotoRepository {
         query.setMaxResults(4);
         return query.getResultList();
     }
+
+    public List<Photo> findByPhotoNameContainingAndAlbumIdOrderByCreatedAtDesc(String keyword, Long albumId) {
+        String jpql = "SELECT p FROM Photo p WHERE LOWER(p.fileName) LIKE LOWER(:keyword) AND p.album.id = :albumId ORDER BY p.uploadedAt DESC";
+        TypedQuery<Photo> query = em.createQuery(jpql, Photo.class);
+        query.setParameter("keyword", "%" + keyword.toLowerCase() + "%");
+        query.setParameter("albumId", albumId);
+        return query.getResultList();
+    }
+
+
+    public List<Photo> findByPhotoNameContainingAndAlbumIdOrderByPhotoNameAsc(String keyword, Long albumId) {
+        String jpql = "SELECT p FROM Photo p WHERE LOWER(p.fileName) LIKE LOWER(:keyword) AND p.album.id = :albumId ORDER BY p.fileName ASC";
+        TypedQuery<Photo> query = em.createQuery(jpql, Photo.class);
+        query.setParameter("keyword", "%" + keyword.toLowerCase() + "%");
+        query.setParameter("albumId", albumId);
+        return query.getResultList();
+    }
+
 }

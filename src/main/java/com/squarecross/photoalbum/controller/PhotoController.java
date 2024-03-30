@@ -7,7 +7,6 @@ import com.squarecross.photoalbum.exception.DownloadPhotosIOException;
 import com.squarecross.photoalbum.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -68,9 +67,13 @@ public class PhotoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PhotoDto>> getPhotoList(@PathVariable("albumId") Long albumId) {
-        List<PhotoDto> res = photoService.getPhotoList(albumId);
-        return new ResponseEntity<>(res, HttpStatus.OK);
+    public ResponseEntity<ResponseDto> getPhotoList(@PathVariable("albumId") Long albumId,
+                                                       @RequestParam(value = "keyword", required = false, defaultValue = "") final String keyword,
+                                                       @RequestParam(value = "sort", required = false, defaultValue = "byDate") final String sort) {
+        List<PhotoDto> res = photoService.getPhotoList(albumId, keyword, sort);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_GET_PHOTO_LIST.getStatus().value())
+                .body(new ResponseDto(ResponseCode.SUCCESS_GET_PHOTO_LIST, res));
     }
 
     @PutMapping("/move")
