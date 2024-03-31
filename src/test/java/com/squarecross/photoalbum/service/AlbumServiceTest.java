@@ -5,16 +5,14 @@ import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
-import com.squarecross.photoalbum.mapper.AlbumMapper;
-import com.squarecross.photoalbum.repository.AlbumRepository;
-import com.squarecross.photoalbum.repository.PhotoRepository;
+import com.squarecross.photoalbum.repository.AlbumJpaRepository;
+import com.squarecross.photoalbum.repository.PhotoJpaRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
@@ -27,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class AlbumServiceTest {
 
     @Autowired
-    AlbumRepository albumRepository;
+    AlbumJpaRepository albumJpaRepository;
 
     @Autowired
-    PhotoRepository photoRepository;
+    PhotoJpaRepository photoJpaRepository;
 
     @Autowired AlbumService albumService;
 
@@ -40,11 +38,11 @@ class AlbumServiceTest {
     public void 앨범_조회() throws Exception {
         Album album = new Album();
         album.setName("name");
-        Long albumId = albumRepository.save(album);
+        Long albumId = albumJpaRepository.save(album);
 
         AlbumDto savedAlbum = albumService.getAlbum(albumId);
 
-        Optional<Album> findAlbum = albumRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumJpaRepository.findOne(albumId);
 
         assertEquals(savedAlbum.getAlbumId(), findAlbum.get().getId());
     }
@@ -60,11 +58,11 @@ class AlbumServiceTest {
     public void 사진갯수_조회() throws Exception {
         Album album = new Album();
         album.setName("name");
-        Long albumId = albumRepository.save(album);
+        Long albumId = albumJpaRepository.save(album);
 
         Photo photo = new Photo();
         photo.setAlbum(album);
-        photoRepository.save(photo);
+        photoJpaRepository.save(photo);
 
         AlbumDto findAlbumDto = albumService.getAlbum(albumId);
         assertEquals(1, findAlbumDto.getCount());
@@ -76,7 +74,7 @@ class AlbumServiceTest {
         albumDto.setAlbumName("name");
         AlbumDto findAlbumDto = albumService.createAlbum(albumDto);
 
-        Optional<Album> findAlbum = albumRepository.findOne(findAlbumDto.getAlbumId());
+        Optional<Album> findAlbum = albumJpaRepository.findOne(findAlbumDto.getAlbumId());
         albumId = findAlbumDto.getAlbumId();
 
         assertEquals("name", findAlbum.get().getName());
@@ -86,14 +84,14 @@ class AlbumServiceTest {
     public void 앨범명_변경() throws Exception {
         Album album = new Album();
         album.setName("name");
-        Long albumId = albumRepository.save(album);
+        Long albumId = albumJpaRepository.save(album);
 
         AlbumDto albumDto = new AlbumDto();
         albumDto.setAlbumName("changeName");
 
         albumService.changeAlbumName(albumId, albumDto);
 
-        Optional<Album> findAlbum = albumRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumJpaRepository.findOne(albumId);
 
         assertEquals("changeName", findAlbum.get().getName());
     }
@@ -101,7 +99,7 @@ class AlbumServiceTest {
     @Test
     public void 앨범_삭제() throws Exception {
 
-        List<Album> albumList = albumRepository.findAll();
+        List<Album> albumList = albumJpaRepository.findAll();
 
         AlbumDto albumDto = new AlbumDto();
         albumDto.setAlbumName("name");
@@ -109,7 +107,7 @@ class AlbumServiceTest {
 
         albumService.deleteAlbum(findAlbumDto.getAlbumId());
 
-        List<Album> deleteAlbumList = albumRepository.findAll();
+        List<Album> deleteAlbumList = albumJpaRepository.findAll();
 
         assertEquals(albumList.size(), deleteAlbumList.size());
     }
@@ -122,13 +120,13 @@ class AlbumServiceTest {
         Album album2 = new Album();
         album2.setName("aaab");
 
-        albumRepository.save(album1);
-        albumRepository.save(album2);
+        albumJpaRepository.save(album1);
+        albumJpaRepository.save(album2);
 
         Photo photo = new Photo();
         photo.setThumbUrl("/url");
         photo.setAlbum(album1);
-        photoRepository.save(photo);
+        photoJpaRepository.save(photo);
 
         List<AlbumDto> albums;
         albums = albumService.getAlbumList("aaa", "byName");

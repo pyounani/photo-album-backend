@@ -1,6 +1,5 @@
 package com.squarecross.photoalbum.repository;
 
-import com.squarecross.photoalbum.domain.Album;
 import com.squarecross.photoalbum.domain.Photo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -13,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class PhotoRepository {
+public class PhotoJpaRepository {
 
     private final EntityManager em;
 

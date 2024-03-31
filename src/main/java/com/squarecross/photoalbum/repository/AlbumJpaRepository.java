@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class AlbumRepository {
+public class AlbumJpaRepository {
 
     private final EntityManager em;
 
