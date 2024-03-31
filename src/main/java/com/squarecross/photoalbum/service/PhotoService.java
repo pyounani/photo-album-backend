@@ -61,9 +61,9 @@ public class PhotoService {
     public List<PhotoDto> getPhotoList(Long albumId, String keyword, String sort) {
         List<Photo> photos;
         if(sort.equals("byName")) {
-            photos = photoRepository.findByFileNameContainingAndAlbum_IdOrderByFileNameAsc(keyword, albumId);
+            photos = photoRepository.findByKeywordAndAlbumIdOrderByFileNameAsc(keyword, albumId);
         } else if (sort.equals("byDate")) {
-            photos = photoRepository.findByFileNameContainingAndAlbum_IdOrderByUploadedAtDesc(keyword, albumId);
+            photos = photoRepository.findByKeywordAndAlbumIdOrderByUploadedAtDesc(keyword, albumId);
         } else {
             throw new UnknownSortingException(ErrorCode.SORT_NOT_FOUND);
         }
