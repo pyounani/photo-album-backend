@@ -6,8 +6,8 @@ import com.squarecross.photoalbum.domain.Photo;
 import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
-import com.squarecross.photoalbum.repository.AlbumJpaRepository;
-import com.squarecross.photoalbum.repository.PhotoJpaRepository;
+import com.squarecross.photoalbum.repository.AlbumRepository;
+import com.squarecross.photoalbum.repository.PhotoRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +30,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class PhotoServiceTest {
 
     @Autowired
-    AlbumJpaRepository albumJpaRepository;
+    AlbumRepository albumRepository;
 
     @Autowired
-    PhotoJpaRepository photoJpaRepository;
+    PhotoRepository photoRepository;
 
     @Autowired PhotoService photoService;
     @Autowired AlbumService albumService;
@@ -45,15 +45,15 @@ class PhotoServiceTest {
     public void 사진상세정보_가져오기() throws Exception {
         Album album = new Album();
         album.setName("name");
-        Long albumId = albumJpaRepository.save(album);
+        Album savedAlbum = albumRepository.save(album);
 
         Photo photo = new Photo();
         photo.setAlbum(album);
-        Long photoId = photoJpaRepository.save(photo);
+        Photo savedPhoto = photoRepository.save(photo);
 
-        PhotoDetailsDto findPhoto = photoService.getPhoto(albumId, photoId);
+        PhotoDetailsDto findPhoto = photoService.getPhoto(savedAlbum.getId(), savedPhoto.getId());
 
-        assertEquals(photoId, findPhoto.getPhotoId());
+        assertEquals(savedPhoto.getId(), findPhoto.getPhotoId());
     }
 
     @Test
@@ -76,21 +76,21 @@ class PhotoServiceTest {
 
         Album album1 = new Album();
         album1.setName("album1");
-        Long fromAlbumId = albumJpaRepository.save(album1);
+        Album fromAlbum = albumRepository.save(album1);
 
         Album album2 = new Album();
         album2.setName("album2");
-        Long newAlbumId = albumJpaRepository.save(album2);
+        Album newAlbum = albumRepository.save(album2);
 
         Photo photo1 = new Photo();
         photo1.setAlbum(album1);
-        Long photoId = photoJpaRepository.save(photo1);
+        Photo savedPhoto = photoRepository.save(photo1);
 
-        photoService.changeAlbumForPhoto(fromAlbumId, newAlbumId, photoId);
+        photoService.changeAlbumForPhoto(fromAlbum.getId(), newAlbum.getId(), savedPhoto.getId());
 
-        Optional<Photo> findPhoto = photoJpaRepository.findOne(photoId);
+        Optional<Photo> findPhoto = photoRepository.findById(savedPhoto.getId());
 
-        assertEquals(newAlbumId, findPhoto.get().getAlbum().getId());
+        assertEquals(newAlbum.getId(), findPhoto.get().getAlbum().getId());
 
     }
 
