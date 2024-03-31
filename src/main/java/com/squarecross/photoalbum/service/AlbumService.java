@@ -8,8 +8,8 @@ import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
 import com.squarecross.photoalbum.exception.UnknownSortingException;
 import com.squarecross.photoalbum.mapper.AlbumMapper;
-import com.squarecross.photoalbum.repository.AlbumJpaRepository;
-import com.squarecross.photoalbum.repository.PhotoJpaRepository;
+import com.squarecross.photoalbum.repository.AlbumRepository;
+import com.squarecross.photoalbum.repository.PhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,29 +31,29 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AlbumService {
 
-    private final AlbumJpaRepository albumJpaRepository;
-    private final PhotoJpaRepository photoJpaRepository;
+    private final AlbumRepository albumRepository;
+    private final PhotoRepository photoRepository;
 
     public AlbumDto createAlbum(AlbumDto albumDto) throws IOException {
         Album album = AlbumMapper.convertToModel(albumDto);
-        albumJpaRepository.save(album);
+        albumRepository.save(album);
         creteAlbumDirectories(album);
         return AlbumMapper.convertToDto(album);
     }
 
     @Transactional(readOnly = true)
     public AlbumDto getAlbum(Long albumId) {
-        Optional<Album> findAlbum = albumJpaRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if (findAlbum.isEmpty()) {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
         AlbumDto albumDto = AlbumMapper.convertToDto(findAlbum.get());
-        albumDto.setCount(photoJpaRepository.countAlbum(albumId));
+        albumDto.setCount(photoRepository.countAlbum(albumId));
         return albumDto;
     }
 
     public AlbumDto changeAlbumName(Long albumId, AlbumDto albumDto) {
-        Optional<Album> findAlbum = albumJpaRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if (findAlbum.isEmpty()) {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
@@ -61,27 +62,27 @@ public class AlbumService {
     }
 
     public void deleteAlbum(Long albumId) throws IOException {
-        Optional<Album> findAlbum = albumJpaRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if (findAlbum.isEmpty()) {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
         cleanupAlbumDirectories(albumId);
-        albumJpaRepository.delete(albumId);
+        albumRepository.delete(albumId);
     }
 
     public List<AlbumDto> getAlbumList(String keyword, String sort) {
         List<Album> albums;
         if (sort.equals("byName")) {
-            albums = albumJpaRepository.findByAlbumNameContainingOrderByAlbumNameAsc(keyword);
+            albums = albumRepository.findByAlbumNameContainingOrderByAlbumNameAsc(keyword);
         } else if (sort.equals("byDate")) {
-            albums = albumJpaRepository.findByAlbumNameContainingOrderByCreatedAtDesc(keyword);
+            albums = albumRepository.findByAlbumNameContainingOrderByCreatedAtDesc(keyword);
         } else {
             throw new UnknownSortingException(ErrorCode.SORT_NOT_FOUND);
         }
 
         List<AlbumDto> albumDtos = AlbumMapper.convertToDtoList(albums);
         for (AlbumDto albumDto : albumDtos) {
-            List<Photo> top4 = photoJpaRepository.findTop4ByAlbum_AlbumIdOrderByUploadedAtDesc(albumDto.getAlbumId());
+            List<Photo> top4 = photoRepository.findTop4ByAlbum_AlbumIdOrderByUploadedAtDesc(albumDto.getAlbumId());
             albumDto.setThumbUrls(top4.stream().map(Photo::getThumbUrl).map(c -> Constants.PATH_PREFIX + c).collect(Collectors.toList()));
         }
         return albumDtos;

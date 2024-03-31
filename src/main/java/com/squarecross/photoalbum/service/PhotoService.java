@@ -8,8 +8,8 @@ import com.squarecross.photoalbum.dto.PhotoDetailsDto;
 import com.squarecross.photoalbum.dto.PhotoDto;
 import com.squarecross.photoalbum.exception.*;
 import com.squarecross.photoalbum.mapper.PhotoMapper;
-import com.squarecross.photoalbum.repository.AlbumJpaRepository;
-import com.squarecross.photoalbum.repository.PhotoJpaRepository;
+import com.squarecross.photoalbum.repository.AlbumRepository;
+import com.squarecross.photoalbum.repository.PhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PhotoService {
 
-    private final PhotoJpaRepository photoJpaRepository;
-    private final AlbumJpaRepository albumJpaRepository;
+    private final PhotoRepository photoRepository;
+    private final AlbumRepository albumRepository;
 
     // 원본 이미지와 썸네일을 저장할 경로 설정
     private final String original_path = Constants.PATH_PREFIX + "/photos/original";
@@ -46,7 +46,7 @@ public class PhotoService {
 
     @Transactional(readOnly = true)
     public PhotoDetailsDto getPhoto(Long albumId, Long photoId) {
-        Optional<Photo> findPhoto = photoJpaRepository.findOne(photoId);
+        Optional<Photo> findPhoto = photoRepository.findOne(photoId);
         if (findPhoto.isEmpty()) {
             throw new PhotoIdNotFoundException(ErrorCode.PHOTOID_NOT_FOUND);
         }
@@ -61,9 +61,9 @@ public class PhotoService {
     public List<PhotoDto> getPhotoList(Long albumId, String keyword, String sort) {
         List<Photo> photos;
         if(sort.equals("byName")) {
-            photos = photoJpaRepository.findByPhotoNameContainingAndAlbumIdOrderByPhotoNameAsc(keyword, albumId);
+            photos = photoRepository.findByPhotoNameContainingAndAlbumIdOrderByPhotoNameAsc(keyword, albumId);
         } else if (sort.equals("byDate")) {
-            photos = photoJpaRepository.findByPhotoNameContainingAndAlbumIdOrderByCreatedAtDesc(keyword, albumId);
+            photos = photoRepository.findByPhotoNameContainingAndAlbumIdOrderByCreatedAtDesc(keyword, albumId);
         } else {
             throw new UnknownSortingException(ErrorCode.SORT_NOT_FOUND);
         }
@@ -72,7 +72,7 @@ public class PhotoService {
     }
 
     public PhotoDto savePhoto(MultipartFile file, Long albumId) throws IOException {
-        Optional<Album> findAlbum = albumJpaRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findOne(albumId);
         if (findAlbum.isEmpty()) {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
@@ -94,7 +94,7 @@ public class PhotoService {
         photo.setThumbUrl("/photos/thumb/" + albumId + "/" + fileName);
         photo.setFileSize(fileSize);
         photo.setAlbum(findAlbum.get());
-        photoJpaRepository.save(photo);
+        photoRepository.save(photo);
 
         return PhotoMapper.convertToDto(photo);
     }
@@ -102,7 +102,7 @@ public class PhotoService {
     @Transactional(readOnly = true)
     public File getImageFile(Long photoId) {
         // 사진 정보 조회
-        Optional<Photo> findPhoto = photoJpaRepository.findOne(photoId);
+        Optional<Photo> findPhoto = photoRepository.findOne(photoId);
         if (findPhoto.isEmpty()) {
             // 사진이 없으면 EntityNotFoundException 발생
             throw new PhotoIdNotFoundException(ErrorCode.PHOTOID_NOT_FOUND);
@@ -112,17 +112,17 @@ public class PhotoService {
     }
 
     public PhotoDto changeAlbumForPhoto(Long fromAlbumId, Long toAlbumId, Long photoId) {
-        Optional<Photo> findPhoto = photoJpaRepository.findOne(photoId);
+        Optional<Photo> findPhoto = photoRepository.findOne(photoId);
         if (findPhoto.isEmpty()) {
             throw new EntityNotFoundException();
         }
         // 원래 앨범 아이디
-        Optional<Album> fromAlbum = albumJpaRepository.findOne(fromAlbumId);
+        Optional<Album> fromAlbum = albumRepository.findOne(fromAlbumId);
         if (fromAlbum.isEmpty()) {
             throw new AlbumIdMismatchException(ErrorCode.ALBUMID_MISMATCH);
         }
         // 이동할려고 하는 앨범 아이디
-        Optional<Album> toAlbum = albumJpaRepository.findOne(toAlbumId);
+        Optional<Album> toAlbum = albumRepository.findOne(toAlbumId);
         if (toAlbum.isEmpty()) {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
@@ -132,7 +132,7 @@ public class PhotoService {
 
     public List<PhotoDto> deletePhoto(Long albumId, List<Long> photoIds) {
         for (Long photoId : photoIds) {
-            Optional<Photo> findPhoto = photoJpaRepository.findOne(photoId);
+            Optional<Photo> findPhoto = photoRepository.findOne(photoId);
             if (findPhoto.isEmpty()) {
                 throw new PhotoIdNotFoundException(ErrorCode.PHOTOID_NOT_FOUND);
             }
@@ -142,11 +142,11 @@ public class PhotoService {
             cleanupPhoto(originalFileName, thumbFileName);
 
             // DB 삭제
-            photoJpaRepository.delete(photoId);
+            photoRepository.delete(photoId);
         }
 
         // 남은 목록 반환
-        List<Photo> findPhotos = photoJpaRepository.findByAlbum(albumId);
+        List<Photo> findPhotos = photoRepository.findByAlbum(albumId);
         return findPhotos.stream()
                 .map(PhotoMapper::convertToDto)
                 .collect(Collectors.toList());
@@ -171,13 +171,13 @@ public class PhotoService {
         String ext = StringUtils.getFilenameExtension(fileName);
 
         // 중복된 파일 이름 검사
-        Optional<Photo> res = photoJpaRepository.findByFileNameAndAlbum_AlbumId(fileName, albumId);
+        Optional<Photo> res = photoRepository.findByFileNameAndAlbum_AlbumId(fileName, albumId);
 
         int count = 2;
         while (res.isPresent()) {
             // 중복된 경우 숫자를 더해 새로운 파일 이름 생성
             fileName = String.format("%s (%d).%s", fileNameNoExt, count, ext);
-            res = photoJpaRepository.findByFileNameAndAlbum_AlbumId(fileName, albumId);
+            res = photoRepository.findByFileNameAndAlbum_AlbumId(fileName, albumId);
             count++;
         }
         return fileName;
