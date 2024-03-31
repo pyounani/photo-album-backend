@@ -11,6 +11,7 @@ import com.squarecross.photoalbum.mapper.AlbumMapper;
 import com.squarecross.photoalbum.repository.AlbumJpaRepository;
 import com.squarecross.photoalbum.repository.AlbumRepository;
 import com.squarecross.photoalbum.repository.PhotoJpaRepository;
+import com.squarecross.photoalbum.repository.PhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 public class AlbumService {
 
     private final AlbumRepository albumRepository;
-    private final PhotoJpaRepository photoJpaRepository;
+    private final PhotoRepository photoRepository;
 
     public AlbumDto createAlbum(AlbumDto albumDto) throws IOException {
         Album album = AlbumMapper.convertToModel(albumDto);
@@ -48,7 +49,7 @@ public class AlbumService {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
         AlbumDto albumDto = AlbumMapper.convertToDto(findAlbum.get());
-        albumDto.setCount(photoJpaRepository.countAlbum(albumId));
+        albumDto.setCount(photoRepository.countByAlbum_Id(albumId));
         return albumDto;
     }
 
@@ -82,7 +83,7 @@ public class AlbumService {
 
         List<AlbumDto> albumDtos = AlbumMapper.convertToDtoList(albums);
         for (AlbumDto albumDto : albumDtos) {
-            List<Photo> top4 = photoJpaRepository.findTop4ByAlbum_AlbumIdOrderByUploadedAtDesc(albumDto.getAlbumId());
+            List<Photo> top4 = photoRepository.findTop4ByAlbum_IdOrderByUploadedAtDesc(albumDto.getAlbumId());
             albumDto.setThumbUrls(top4.stream().map(Photo::getThumbUrl).map(c -> Constants.PATH_PREFIX + c).collect(Collectors.toList()));
         }
         return albumDtos;
