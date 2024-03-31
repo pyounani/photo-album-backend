@@ -9,7 +9,6 @@ import com.squarecross.photoalbum.dto.PhotoDto;
 import com.squarecross.photoalbum.exception.*;
 import com.squarecross.photoalbum.mapper.PhotoMapper;
 import com.squarecross.photoalbum.repository.AlbumRepository;
-import com.squarecross.photoalbum.repository.PhotoJpaRepository;
 import com.squarecross.photoalbum.repository.PhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
