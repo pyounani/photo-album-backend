@@ -8,8 +8,9 @@ import com.squarecross.photoalbum.dto.AlbumDto;
 import com.squarecross.photoalbum.exception.AlbumIdNotFoundException;
 import com.squarecross.photoalbum.exception.UnknownSortingException;
 import com.squarecross.photoalbum.mapper.AlbumMapper;
+import com.squarecross.photoalbum.repository.AlbumJpaRepository;
 import com.squarecross.photoalbum.repository.AlbumRepository;
-import com.squarecross.photoalbum.repository.PhotoRepository;
+import com.squarecross.photoalbum.repository.PhotoJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class AlbumService {
 
     private final AlbumRepository albumRepository;
-    private final PhotoRepository photoRepository;
+    private final PhotoJpaRepository photoJpaRepository;
 
     public AlbumDto createAlbum(AlbumDto albumDto) throws IOException {
         Album album = AlbumMapper.convertToModel(albumDto);
@@ -43,17 +43,17 @@ public class AlbumService {
 
     @Transactional(readOnly = true)
     public AlbumDto getAlbum(Long albumId) {
-        Optional<Album> findAlbum = albumRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findById(albumId);
         if (findAlbum.isEmpty()) {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
         AlbumDto albumDto = AlbumMapper.convertToDto(findAlbum.get());
-        albumDto.setCount(photoRepository.countAlbum(albumId));
+        albumDto.setCount(photoJpaRepository.countAlbum(albumId));
         return albumDto;
     }
 
     public AlbumDto changeAlbumName(Long albumId, AlbumDto albumDto) {
-        Optional<Album> findAlbum = albumRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findById(albumId);
         if (findAlbum.isEmpty()) {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
@@ -62,27 +62,27 @@ public class AlbumService {
     }
 
     public void deleteAlbum(Long albumId) throws IOException {
-        Optional<Album> findAlbum = albumRepository.findOne(albumId);
+        Optional<Album> findAlbum = albumRepository.findById(albumId);
         if (findAlbum.isEmpty()) {
             throw new AlbumIdNotFoundException(ErrorCode.ALBUMID_NOT_FOUND);
         }
         cleanupAlbumDirectories(albumId);
-        albumRepository.delete(albumId);
+        albumRepository.delete(findAlbum.get());
     }
 
     public List<AlbumDto> getAlbumList(String keyword, String sort) {
         List<Album> albums;
         if (sort.equals("byName")) {
-            albums = albumRepository.findByAlbumNameContainingOrderByAlbumNameAsc(keyword);
+            albums = albumRepository.findByNameContainingOrderByNameAsc(keyword);
         } else if (sort.equals("byDate")) {
-            albums = albumRepository.findByAlbumNameContainingOrderByCreatedAtDesc(keyword);
+            albums = albumRepository.findByNameContainingOrderByCreatedAtDesc(keyword);
         } else {
             throw new UnknownSortingException(ErrorCode.SORT_NOT_FOUND);
         }
 
         List<AlbumDto> albumDtos = AlbumMapper.convertToDtoList(albums);
         for (AlbumDto albumDto : albumDtos) {
-            List<Photo> top4 = photoRepository.findTop4ByAlbum_AlbumIdOrderByUploadedAtDesc(albumDto.getAlbumId());
+            List<Photo> top4 = photoJpaRepository.findTop4ByAlbum_AlbumIdOrderByUploadedAtDesc(albumDto.getAlbumId());
             albumDto.setThumbUrls(top4.stream().map(Photo::getThumbUrl).map(c -> Constants.PATH_PREFIX + c).collect(Collectors.toList()));
         }
         return albumDtos;

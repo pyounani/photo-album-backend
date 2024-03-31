@@ -13,10 +13,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-class AlbumRepositoryTest {
+class AlbumJpaRepositoryTest {
 
     @Autowired
-    AlbumRepository albumRepository;
+    AlbumJpaRepository albumJpaRepository;
 
     @Test
     public void 최신순_정렬() throws InterruptedException {
@@ -26,11 +26,11 @@ class AlbumRepositoryTest {
         Album album2 = new Album();
         album2.setName("aaab");
 
-        albumRepository.save(album1);
+        albumJpaRepository.save(album1);
         TimeUnit.SECONDS.sleep(1); //시간차를 벌리기위해 두번째 앨범 생성 1초 딜레이
-        albumRepository.save(album2);
+        albumJpaRepository.save(album2);
 
-        List<Album> findAlbumList = albumRepository.findByAlbumNameContainingOrderByCreatedAtDesc("aaa");
+        List<Album> findAlbumList = albumJpaRepository.findByAlbumNameContainingOrderByCreatedAtDesc("aaa");
         assertEquals("aaab", findAlbumList.get(0).getName());
         assertEquals("aaaa", findAlbumList.get(1).getName());
         assertEquals(2, findAlbumList.size());
@@ -45,11 +45,11 @@ class AlbumRepositoryTest {
         Album album2 = new Album();
         album2.setName("aaab");
 
-        albumRepository.save(album1);
+        albumJpaRepository.save(album1);
         TimeUnit.SECONDS.sleep(1); //시간차를 벌리기위해 두번째 앨범 생성 1초 딜레이
-        albumRepository.save(album2);
+        albumJpaRepository.save(album2);
 
-        List<Album> findAlbumList = albumRepository.findByAlbumNameContainingOrderByAlbumNameAsc("aaa");
+        List<Album> findAlbumList = albumJpaRepository.findByAlbumNameContainingOrderByAlbumNameAsc("aaa");
         assertEquals("aaaa", findAlbumList.get(0).getName());
         assertEquals("aaab", findAlbumList.get(1).getName());
         assertEquals(2, findAlbumList.size());
